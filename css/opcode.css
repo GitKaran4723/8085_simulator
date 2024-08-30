@@ -1,0 +1,71 @@
+/* Basic reset for the table */
+body{
+    margin: 5%;
+}
+
+#heading{
+    text-align: center;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+    font-family: Arial, sans-serif;
+    overflow-x: auto; /* Allow horizontal scrolling if needed */
+}
+
+/* Styling the table header */
+th {
+    background-color: #4CAF50; /* Dark green background */
+    color: white; /* White text */
+    padding: 12px; /* Padding for cells */
+    text-align: left; /* Left-align text */
+    border: 1px solid #ddd; /* Light grey border */
+    word-wrap: break-word; /* Break long words */
+}
+
+/* Styling table cells */
+td {
+    padding: 10px; /* Padding for cells */
+    border: 1px solid #ddd; /* Light grey border */
+    word-wrap: break-word; /* Break long words */
+}
+
+/* Zebra striping for rows */
+tr:nth-child(even) {
+    background-color: #f2f2f2; /* Light grey background for even rows */
+}
+
+/* Hover effect for rows */
+tr:hover {
+    background-color: #ddd; /* Darker grey background on hover */
+}
+
+/* Header row styling */
+thead {
+    background-color: #333; /* Dark background for header */
+    color: white; /* White text for header */
+}
+
+/* Styling the caption */
+caption {
+    font-size: 1.5em; /* Larger font size for caption */
+    margin: 10px; /* Margin around caption */
+    text-align: left; /* Left-align caption */
+}
+
+/* Search bar styling */
+.search-container {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.search-container input {
+    padding: 10px;
+    font-size: 1em;
+    width: 100%;
+    max-width: 600px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}

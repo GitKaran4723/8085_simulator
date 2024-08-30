@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8085 Simulator</title>
+    <link href="css/style.css" rel="stylesheet" />
+</head>
+
+<body>
+
+    <div class="simulator-container">
+        <div class="display_container">
+            <div class="display address_display" id="address_display">0000</div>
+            <div class="display code_display" id="code_display">00</div>
+            <button class="button reset_button" id="reset_button" title="Reset the Simulator">Reset</button>
+        </div>
+
+        <div class="key_container">
+            <div class="keypad">
+                <!-- Number and Hex Buttons -->
+                <div class="row">
+                    <button class="button hex_button" title="Hex C">C</button>
+                    <button class="button hex_button" title="Hex 8">8</button>
+                    <button class="button hex_button" title="Hex 4">4</button>
+                    <button class="button hex_button" title="Hex 0">0</button>
+                </div>
+
+                <div class="row">
+                    <button class="button hex_button" title="Hex D">D</button>
+                    <button class="button hex_button" title="Hex 9">9</button>
+                    <button class="button hex_button" title="Hex 5">5</button>
+                    <button class="button hex_button" title="Hex 1">1</button>
+                </div>
+
+                <div class="row">
+                    <button class="button hex_button" title="Hex E">E</button>
+                    <button class="button hex_button" title="Hex A">A</button>
+                    <button class="button hex_button" title="Hex 6">6</button>
+                    <button class="button hex_button" title="Hex 2">2</button>
+                </div>
+
+                <div class="row">
+                    <button class="button hex_button" title="Hex F">F</button>
+                    <button class="button hex_button" title="Hex B">B</button>
+                    <button class="button hex_button" title="Hex 7">7</button>
+                    <button class="button hex_button" title="Hex 3">3</button>
+                </div>
+            </div>
+
+            <div class="keypad">
+                <div class="row">
+                    <button class="button" id="break_button" title="Break Execution">BREAK</button>
+                    <button class="button" id="reg_button" title="View Registers">REG</button>
+                    <button class="button" id="dec_button" title="Decrement Address">DEC</button>
+                    <button class="button" id="inc_button" title="Increment Address">INC</button>
+                </div>
+
+                <div class="row">
+                    <button class="button" id="step_button" title="Step Execution">STEP</button>
+                    <button class="button" id="input_button" title="Input Data">INPUT</button>
+                    <button class="button" id="output_button" title="Output Data">OUTPUT</button>
+                    <button class="button" id="star_button" title="Set Address">*</button>
+                </div>
+
+                <div class="row">
+                    <button class="button" id="insert_instruction_button" title="Insert Instruction">INS</button>
+                    <button class="button" id="double_star_button" title="Double Star Button">**</button>
+                    <button class="button" id="download_button" title="Download">DNLD</button>
+                    <button class="button" id="help_button" title="Help">HELP</button>
+                </div>
+
+                <div class="row">
+                    <button class="button" id="delete_button" title="Delete">DEL</button>
+                    <button class="button" id="move_button" title="Move">MOVE</button>
+                    <button class="button" id="fill_memory_button" title="Fill Memory">FILL</button>
+                    <button class="button exec_button" id="execute_button" title="Execute">EXEC</button>
+                </div>
+
+
+
+            </div>
+
+
+        </div>
+
+    </div>
+    <button class="button memory_button" id="memory_button" title="View Memory">Memory</button>
+
+    <div id="memory_display" class="memory hidden">
+        <h3>Memory View</h3>
+        <div id="memory_container" class="memory-container">
+            <div class="scrollable-table">
+                <table id="memory_table">
+                    <!-- Memory rows will be dynamically inserted here -->
+                </table>
+            </div>
+        </div>
+    </div>
+    
+
+    <script src="js/scripts.js"></script>
+
+</body>
+
+</html>
