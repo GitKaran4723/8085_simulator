@@ -41,18 +41,29 @@ function fetch() {
 // Execute instructions based on the opcode
 function execute(opcode) {
     switch (opcode) {
-        case 0x00: // NOP (No Operation)
+        case 0x00: // NOP
             break;
-        case 0x01: // LXI B, D16 (Load immediate value into BC register pair)
+        case 0x01: // LXI B, D16
             registers.C = memory[registers.PC];
             registers.B = memory[registers.PC + 1];
             registers.PC += 2;
             break;
-        case 0x80: // ADD B (Add register B to A)
+        case 0x06: // MVI B, D8
+            registers.B = memory[registers.PC];
+            registers.PC += 1;
+            break;
+        case 0x80: // ADD B
             let result = registers.A + registers.B;
-            registers.A = result & 0xFF; // Only keep the lower 8 bits
-            flags.Z = (registers.A === 0) ? 1 : 0; // Zero flag
-            flags.S = (registers.A & 0x80) ? 1 : 0; // Sign flag (bit 7 is set)
+            registers.A = result & 0xFF;
+            flags.Z = (registers.A === 0) ? 1 : 0;
+            flags.S = (registers.A & 0x80) ? 1 : 0;
+            break;
+        case 0xC3: // JMP Address
+            registers.PC = memory[registers.PC] | (memory[registers.PC + 1] << 8);
+            break;
+        case 0xC9: // RET
+            registers.PC = memory[registers.SP] | (memory[registers.SP + 1] << 8);
+            registers.SP += 2;
             break;
         default:
             console.log('Unsupported Opcode:', opcode.toString(16));
@@ -60,6 +71,7 @@ function execute(opcode) {
     }
     return true;
 }
+
 
 // Initialize the simulator
 function init() {
@@ -77,11 +89,30 @@ function saveMemory() {
     localStorage.setItem('memory', JSON.stringify(memory));
 }
 
-// Update the display with register values
 function updateDisplay() {
+    // Update address and code display
     document.getElementById('address_display').innerText = registers.PC.toString(16).toUpperCase().padStart(4, '0');
     document.getElementById('code_display').innerText = memory[registers.PC].toString(16).toUpperCase().padStart(2, '0');
+
+    // Update register values
+    document.getElementById('register-A').innerText = registers.A.toString(16).toUpperCase().padStart(2, '0');
+    document.getElementById('register-B').innerText = registers.B.toString(16).toUpperCase().padStart(2, '0');
+    document.getElementById('register-C').innerText = registers.C.toString(16).toUpperCase().padStart(2, '0');
+    document.getElementById('register-D').innerText = registers.D.toString(16).toUpperCase().padStart(2, '0');
+    document.getElementById('register-E').innerText = registers.E.toString(16).toUpperCase().padStart(2, '0');
+    document.getElementById('register-H').innerText = registers.H.toString(16).toUpperCase().padStart(2, '0');
+    document.getElementById('register-L').innerText = registers.L.toString(16).toUpperCase().padStart(2, '0');
+    document.getElementById('register-SP').innerText = registers.SP.toString(16).toUpperCase().padStart(4, '0');
+    document.getElementById('register-PC').innerText = registers.PC.toString(16).toUpperCase().padStart(4, '0');
+
+    // Update flags
+    document.getElementById('flag-Z').innerText = flags.Z;
+    document.getElementById('flag-S').innerText = flags.S;
+    document.getElementById('flag-P').innerText = flags.P;
+    document.getElementById('flag-CY').innerText = flags.CY;
+    document.getElementById('flag-AC').innerText = flags.AC;
 }
+
 
 // Run the simulator
 function run() {
