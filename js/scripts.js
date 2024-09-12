@@ -31,6 +31,8 @@ if (localStorage.getItem('memory')) {
     }
 }
 
+let halted = false; // Add a halted flag to stop execution properly
+
 // Function to fetch the next instruction
 function fetch() {
     const opcode = memory[registers.PC];
@@ -65,13 +67,16 @@ function execute(opcode) {
             registers.PC = memory[registers.SP] | (memory[registers.SP + 1] << 8);
             registers.SP += 2;
             break;
+        case 0x76: // HLT - Halt the program
+            halted = true;
+            console.log('Program halted (HLT instruction).');
+            return false; // Stop execution loop
         default:
             console.log('Unsupported Opcode:', opcode.toString(16));
             break;
     }
-    return true;
+    return true; // Continue execution unless HLT
 }
-
 
 // Initialize the simulator
 function init() {
@@ -89,10 +94,16 @@ function saveMemory() {
     localStorage.setItem('memory', JSON.stringify(memory));
 }
 
-function updateDisplay() {
-    // Update address and code display
-    document.getElementById('address_display').innerText = registers.PC.toString(16).toUpperCase().padStart(4, '0');
-    document.getElementById('code_display').innerText = memory[registers.PC].toString(16).toUpperCase().padStart(2, '0');
+// Update the display with register and memory information
+function updateDisplay(executing = null) {
+    if (executing) {
+        // Show "Executing" on the code display when the program is running
+        document.getElementById('code_display').innerText = "EXEC";
+    } else {
+        // Update address and code display normally when not executing
+        document.getElementById('address_display').innerText = registers.PC.toString(16).toUpperCase().padStart(4, '0');
+        document.getElementById('code_display').innerText = memory[registers.PC].toString(16).toUpperCase().padStart(2, '0');
+    }
 
     // Update register values
     document.getElementById('register-A').innerText = registers.A.toString(16).toUpperCase().padStart(2, '0');
@@ -113,14 +124,21 @@ function updateDisplay() {
     document.getElementById('flag-AC').innerText = flags.AC;
 }
 
-
 // Run the simulator
 function run() {
-    let running = true;
-    while (running) {
-        const opcode = fetch();
-        running = execute(opcode);
-        updateDisplay();
+    if (!halted) {
+        const opcode = fetch(); // Fetch the next instruction
+        const running = execute(opcode); // Execute the instruction
+        updateDisplay("Executing"); // Show "Executing" in the display during execution
+
+        if (running) {
+            // Use a delay between instruction executions to simulate real-time running
+            setTimeout(run, 500); // Adjust the delay as needed
+        } else {
+            updateDisplay(); // Revert back to showing the normal code when done
+            halted = true;
+            console.log("Execution halted.");
+        }
     }
 }
 
@@ -190,7 +208,6 @@ document.addEventListener("DOMContentLoaded", function() {
     fixFirstColumn();
 });
 
-
 // Address/Code selection handling
 let selectedDisplay = 'address'; // Default to address
 
@@ -246,6 +263,12 @@ document.querySelectorAll('.button').forEach(button => {
 // Reset the simulator
 document.getElementById('reset_button').addEventListener('click', () => {
     init();
+});
+
+// EXEC button functionality
+document.getElementById('execute_button').addEventListener('click', () => {
+    halted = false; // Reset halt state before execution
+    run(); // Start the program
 });
 
 // Initialize the simulator on page load
