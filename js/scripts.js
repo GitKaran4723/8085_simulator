@@ -54,6 +54,10 @@ function execute(opcode) {
       registers.PC += 2;
       break;
 
+    case 0x4f: // MOV C, A (Move the content of A into C)
+      registers.C = registers.A; // Copy the value from accumulator A to register C
+      break;
+
     case 0x11: // LXI D, D16 (Load immediate 16-bit data into DE)
       registers.E = memory[registers.PC];
       registers.D = memory[registers.PC + 1];
@@ -115,8 +119,33 @@ function execute(opcode) {
       registers.PC += 1; // Increment PC to move past the immediate data byte
       break;
 
+    case 0x3a: // LDA addr (Load memory value into accumulator A)
+      const lowByte = memory[registers.PC]; // Get the low byte of the address
+      const highByte = memory[registers.PC + 1]; // Get the high byte of the address
+      const address = (highByte << 8) | lowByte; // Combine to form the full 16-bit address
+      registers.A = memory[address]; // Load the memory content at that address into the accumulator
+      registers.PC += 2; // Increment PC by 2 since we fetched a 16-bit address
+      break;
+
+    case 0x47: // MOV B, A (Move the content of A into B)
+      registers.B = registers.A; // Copy the value from accumulator A to register B
+      break;
+
+    case 0x32: // STA addr (Store accumulator A into memory)
+      const lowByteSTA = memory[registers.PC]; // Get the low byte of the address
+      const highByteSTA = memory[registers.PC + 1]; // Get the high byte of the address
+      const addressSTA = (highByteSTA << 8) | lowByteSTA; // Combine to form the full 16-bit address
+      memory[addressSTA] = registers.A; // Store the content of A into the memory address
+      registers.PC += 2; // Increment PC by 2 to skip over the 16-bit address
+      saveMemory(); // Save memory to local storage after the operation
+      break;
+
     case 0x7e: // MOV A, M (Move data from memory to register A)
       registers.A = memory[(registers.H << 8) | registers.L];
+      break;
+
+    case 0x78: // MOV A, B (Move the content of B into A)
+      registers.A = registers.B; // Copy the value from register B to accumulator A
       break;
 
     // Arithmetic Instructions
@@ -141,8 +170,8 @@ function execute(opcode) {
       break;
 
     case 0x86: // ADD M (Add memory to register A)
-      let address = (registers.H << 8) | registers.L;
-      result = registers.A + memory[address];
+      let addressM = (registers.H << 8) | registers.L;
+      result = registers.A + memory[addressM];
       registers.A = result & 0xff;
       flags.Z = registers.A === 0 ? 1 : 0;
       flags.S = registers.A & 0x80 ? 1 : 0;
@@ -251,6 +280,368 @@ function execute(opcode) {
     case 0x76: // HLT (Halt execution)
       halted = true;
       return false; // Stop execution loop
+
+    case 0x79: // MOV A, C (Move the content of C into A)
+      registers.A = registers.C; // Copy the value from register C to accumulator A
+      break;
+
+    case 0x40: // MOV B, B
+      // No operation since B is copied to itself.
+      break;
+
+    case 0x41: // MOV B, C
+      registers.B = registers.C;
+      break;
+
+    case 0x42: // MOV B, D
+      registers.B = registers.D;
+      break;
+
+    case 0x43: // MOV B, E
+      registers.B = registers.E;
+      break;
+
+    case 0x44: // MOV B, H
+      registers.B = registers.H;
+      break;
+
+    case 0x45: // MOV B, L
+      registers.B = registers.L;
+      break;
+
+    case 0x46: // MOV B, M
+      registers.B = memory[(registers.H << 8) | registers.L]; // B = memory[HL]
+      break;
+
+    case 0x48: // MOV C, B
+      registers.C = registers.B;
+      break;
+
+    case 0x49: // MOV C, C
+      // No operation since C is copied to itself.
+      break;
+
+    case 0x4a: // MOV C, D
+      registers.C = registers.D;
+      break;
+
+    case 0x4b: // MOV C, E
+      registers.C = registers.E;
+      break;
+
+    case 0x4c: // MOV C, H
+      registers.C = registers.H;
+      break;
+
+    case 0x4d: // MOV C, L
+      registers.C = registers.L;
+      break;
+
+    case 0x4e: // MOV C, M
+      registers.C = memory[(registers.H << 8) | registers.L]; // C = memory[HL]
+      break;
+
+    case 0x50: // MOV D, B
+      registers.D = registers.B;
+      break;
+
+    case 0x51: // MOV D, C
+      registers.D = registers.C;
+      break;
+
+    case 0x52: // MOV D, D
+      // No operation since D is copied to itself.
+      break;
+
+    case 0x53: // MOV D, E
+      registers.D = registers.E;
+      break;
+
+    case 0x54: // MOV D, H
+      registers.D = registers.H;
+      break;
+
+    case 0x55: // MOV D, L
+      registers.D = registers.L;
+      break;
+
+    case 0x56: // MOV D, M
+      registers.D = memory[(registers.H << 8) | registers.L]; // D = memory[HL]
+      break;
+
+    case 0x58: // MOV E, B
+      registers.E = registers.B;
+      break;
+
+    case 0x59: // MOV E, C
+      registers.E = registers.C;
+      break;
+
+    case 0x5a: // MOV E, D
+      registers.E = registers.D;
+      break;
+
+    case 0x5b: // MOV E, E
+      // No operation since E is copied to itself.
+      break;
+
+    case 0x5c: // MOV E, H
+      registers.E = registers.H;
+      break;
+
+    case 0x5d: // MOV E, L
+      registers.E = registers.L;
+      break;
+
+    case 0x5e: // MOV E, M
+      registers.E = memory[(registers.H << 8) | registers.L]; // E = memory[HL]
+      break;
+
+    case 0x60: // MOV H, B
+      registers.H = registers.B;
+      break;
+
+    case 0x61: // MOV H, C
+      registers.H = registers.C;
+      break;
+
+    case 0x62: // MOV H, D
+      registers.H = registers.D;
+      break;
+
+    case 0x63: // MOV H, E
+      registers.H = registers.E;
+      break;
+
+    case 0x64: // MOV H, H
+      // No operation since H is copied to itself.
+      break;
+
+    case 0x65: // MOV H, L
+      registers.H = registers.L;
+      break;
+
+    case 0x66: // MOV H, M
+      registers.H = memory[(registers.H << 8) | registers.L]; // H = memory[HL]
+      break;
+
+    case 0x68: // MOV L, B
+      registers.L = registers.B;
+      break;
+
+    case 0x69: // MOV L, C
+      registers.L = registers.C;
+      break;
+
+    case 0x6a: // MOV L, D
+      registers.L = registers.D;
+      break;
+
+    case 0x6b: // MOV L, E
+      registers.L = registers.E;
+      break;
+
+    case 0x6c: // MOV L, H
+      registers.L = registers.H;
+      break;
+
+    case 0x6d: // MOV L, L
+      // No operation since L is copied to itself.
+      break;
+
+    case 0x6e: // MOV L, M
+      registers.L = memory[(registers.H << 8) | registers.L]; // L = memory[HL]
+      break;
+
+    case 0x70: // MOV M, B
+      memory[(registers.H << 8) | registers.L] = registers.B; // memory[HL] = B
+      break;
+
+    case 0x71: // MOV M, C
+      memory[(registers.H << 8) | registers.L] = registers.C; // memory[HL] = C
+      break;
+
+    case 0x72: // MOV M, D
+      memory[(registers.H << 8) | registers.L] = registers.D; // memory[HL] = D
+      break;
+
+    case 0x73: // MOV M, E
+      memory[(registers.H << 8) | registers.L] = registers.E; // memory[HL] = E
+      break;
+
+    case 0x74: // MOV M, H
+      memory[(registers.H << 8) | registers.L] = registers.H; // memory[HL] = H
+      break;
+
+    case 0x75: // MOV M, L
+      memory[(registers.H << 8) | registers.L] = registers.L; // memory[HL] = L
+      break;
+
+    case 0x0a: // LDAX B (Load accumulator A from memory address in BC)
+      registers.A = memory[(registers.B << 8) | registers.C]; // A = memory[BC]
+      break;
+
+    case 0x04: // INR B (Increment register B)
+      registers.B = (registers.B + 1) & 0xff;
+      flags.Z = registers.B === 0 ? 1 : 0;
+      flags.S = registers.B & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.B.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.AC = (registers.B & 0x0f) + 1 > 0x0f ? 1 : 0;
+      break;
+
+    case 0x0c: // INR C (Increment register C)
+      registers.C = (registers.C + 1) & 0xff;
+      flags.Z = registers.C === 0 ? 1 : 0;
+      flags.S = registers.C & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.C.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.AC = (registers.C & 0x0f) + 1 > 0x0f ? 1 : 0;
+      break;
+
+    case 0x14: // INR D (Increment register D)
+      registers.D = (registers.D + 1) & 0xff;
+      flags.Z = registers.D === 0 ? 1 : 0;
+      flags.S = registers.D & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.D.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.AC = (registers.D & 0x0f) + 1 > 0x0f ? 1 : 0;
+      break;
+
+    case 0x1c: // INR E (Increment register E)
+      registers.E = (registers.E + 1) & 0xff;
+      flags.Z = registers.E === 0 ? 1 : 0;
+      flags.S = registers.E & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.E.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.AC = (registers.E & 0x0f) + 1 > 0x0f ? 1 : 0;
+      break;
+
+    case 0x24: // INR H (Increment register H)
+      registers.H = (registers.H + 1) & 0xff;
+      flags.Z = registers.H === 0 ? 1 : 0;
+      flags.S = registers.H & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.H.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.AC = (registers.H & 0x0f) + 1 > 0x0f ? 1 : 0;
+      break;
+
+    case 0x34: // INR M (Increment value in memory at address HL)
+      let memAddr = (registers.H << 8) | registers.L;
+      memory[memAddr] = (memory[memAddr] + 1) & 0xff;
+      flags.Z = memory[memAddr] === 0 ? 1 : 0;
+      flags.S = memory[memAddr] & 0x80 ? 1 : 0;
+      flags.P =
+        (memory[memAddr].toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.AC = (memory[memAddr] & 0x0f) + 1 > 0x0f ? 1 : 0;
+      break;
+
+    case 0x0d: // DCR C (Decrement register C)
+      registers.C = (registers.C - 1) & 0xff;
+      flags.Z = registers.C === 0 ? 1 : 0;
+      flags.S = registers.C & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.C.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.AC = (registers.C & 0x0f) === 0x0f ? 1 : 0;
+      break;
+
+    case 0x1d: // DCR E (Decrement register E)
+      registers.E = (registers.E - 1) & 0xff;
+      flags.Z = registers.E === 0 ? 1 : 0;
+      flags.S = registers.E & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.E.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.AC = (registers.E & 0x0f) === 0x0f ? 1 : 0;
+      break;
+
+    case 0x25: // DCR H (Decrement register H)
+      registers.H = (registers.H - 1) & 0xff;
+      flags.Z = registers.H === 0 ? 1 : 0;
+      flags.S = registers.H & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.H.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.AC = (registers.H & 0x0f) === 0x0f ? 1 : 0;
+      break;
+
+    case 0x35: // DCR M (Decrement value in memory at address HL)
+      let memAddrDcr = (registers.H << 8) | registers.L;
+      memory[memAddrDcr] = (memory[memAddrDcr] - 1) & 0xff;
+      flags.Z = memory[memAddrDcr] === 0 ? 1 : 0;
+      flags.S = memory[memAddrDcr] & 0x80 ? 1 : 0;
+      flags.P =
+        (memory[memAddrDcr].toString(2).split("1").length - 1) % 2 === 0
+          ? 1
+          : 0;
+      flags.AC = (memory[memAddrDcr] & 0x0f) === 0x0f ? 1 : 0;
+      break;
+
+    case 0xa8: // XRA B (Exclusive OR B with A)
+      registers.A = registers.A ^ registers.B;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0xa9: // XRA C (Exclusive OR C with A)
+      registers.A = registers.A ^ registers.C;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0xaa: // XRA D (Exclusive OR D with A)
+      registers.A = registers.A ^ registers.D;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0xab: // XRA E (Exclusive OR E with A)
+      registers.A = registers.A ^ registers.E;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0xaf: // XRA A (Exclusive OR A with A)
+      registers.A = registers.A ^ registers.A;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0xb8: // CMP B (Compare B with A)
+      let cmpResult = registers.A - registers.B;
+      flags.Z = cmpResult === 0 ? 1 : 0;
+      flags.S = cmpResult & 0x80 ? 1 : 0;
+      flags.CY = cmpResult < 0 ? 1 : 0;
+      flags.P = (cmpResult.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0xb9: // CMP C (Compare C with A)
+      cmpResult = registers.A - registers.C;
+      flags.Z = cmpResult === 0 ? 1 : 0;
+      flags.S = cmpResult & 0x80 ? 1 : 0;
+      flags.CY = cmpResult < 0 ? 1 : 0;
+      flags.P = (cmpResult.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0x1a: // LDAX D (Load accumulator A from memory address in DE)
+      registers.A = memory[(registers.D << 8) | registers.E]; // A = memory[DE]
+      break;
+
+    case 0x02: // STAX B (Store accumulator A into memory address in BC)
+      memory[(registers.B << 8) | registers.C] = registers.A; // memory[BC] = A
+      break;
+
+    case 0x12: // STAX D (Store accumulator A into memory address in DE)
+      memory[(registers.D << 8) | registers.E] = registers.A; // memory[DE] = A
+      break;
 
     default:
       console.log("Unsupported Opcode:", opcode.toString(16));
