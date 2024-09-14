@@ -669,6 +669,15 @@ function init() {
   console.log("Simulator Initialized.");
 }
 
+const refresh_memory_button = document.getElementById('refresh_memory_button');
+refresh_memory_button.addEventListener('click',()=>{
+    memory.fill(0x00);
+    saveMemory();
+    updateDisplay();
+    displayMemory();
+    console.log("Memory Reset.");
+})
+
 // Save memory to local storage
 function saveMemory() {
   localStorage.setItem("memory", JSON.stringify(memory));

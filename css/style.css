@@ -220,6 +220,10 @@ body {
     margin-bottom: 10px;
 }
 
+.memory_buttons{
+    display: flex;
+}
+
 @media only screen and (max-width: 600px) {
     body {
         width: 100vw;
