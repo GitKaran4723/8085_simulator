@@ -43,38 +43,203 @@ function fetch() {
 // Execute instructions based on the opcode
 function execute(opcode) {
     switch (opcode) {
-        case 0x00: // NOP
+        // Data Transfer Instructions
+        case 0x00: // NOP (No Operation)
+            // Do nothing, just move to the next instruction
             break;
-        case 0x01: // LXI B, D16
+            
+        case 0x01: // LXI B, D16 (Load immediate 16-bit data into BC)
             registers.C = memory[registers.PC];
             registers.B = memory[registers.PC + 1];
             registers.PC += 2;
             break;
-        case 0x06: // MVI B, D8
+            
+        case 0x11: // LXI D, D16 (Load immediate 16-bit data into DE)
+            registers.E = memory[registers.PC];
+            registers.D = memory[registers.PC + 1];
+            registers.PC += 2;
+            break;
+            
+        case 0x21: // LXI H, D16 (Load immediate 16-bit data into HL)
+            registers.L = memory[registers.PC];
+            registers.H = memory[registers.PC + 1];
+            registers.PC += 2;
+            break;
+            
+        case 0x31: // LXI SP, D16 (Load immediate 16-bit data into SP)
+            registers.SP = memory[registers.PC] | (memory[registers.PC + 1] << 8);
+            registers.PC += 2;
+            break;
+            
+        case 0x06: // MVI B, D8 (Move immediate data to register B)
             registers.B = memory[registers.PC];
             registers.PC += 1;
             break;
-        case 0x80: // ADD B
+            
+        case 0x0E: // MVI C, D8 (Move immediate data to register C)
+            registers.C = memory[registers.PC];
+            registers.PC += 1;
+            break;
+            
+        case 0x16: // MVI D, D8 (Move immediate data to register D)
+            registers.D = memory[registers.PC];
+            registers.PC += 1;
+            break;
+            
+        case 0x1E: // MVI E, D8 (Move immediate data to register E)
+            registers.E = memory[registers.PC];
+            registers.PC += 1;
+            break;
+            
+        case 0x26: // MVI H, D8 (Move immediate data to register H)
+            registers.H = memory[registers.PC];
+            registers.PC += 1;
+            break;
+            
+        case 0x2E: // MVI L, D8 (Move immediate data to register L)
+            registers.L = memory[registers.PC];
+            registers.PC += 1;
+            break;
+
+        case 0x3E: // MVI A, D8 (Move immediate data to the accumulator A)
+            registers.A = memory[registers.PC]; // Load immediate value from the next memory location into register A
+            registers.PC += 1; // Increment PC to move past the immediate data byte
+            break;
+    
+        case 0x7E: // MOV A, M (Move data from memory to register A)
+            registers.A = memory[registers.H << 8 | registers.L];
+            break;
+    
+        // Arithmetic Instructions
+        case 0x80: // ADD B (Add register B to register A)
             let result = registers.A + registers.B;
             registers.A = result & 0xFF;
             flags.Z = (registers.A === 0) ? 1 : 0;
             flags.S = (registers.A & 0x80) ? 1 : 0;
+            flags.CY = (result > 0xFF) ? 1 : 0;
+            flags.P = (registers.A.toString(2).split('1').length - 1) % 2 === 0 ? 1 : 0;
             break;
-        case 0xC3: // JMP Address
+    
+        case 0x81: // ADD C
+            result = registers.A + registers.C;
+            registers.A = result & 0xFF;
+            flags.Z = (registers.A === 0) ? 1 : 0;
+            flags.S = (registers.A & 0x80) ? 1 : 0;
+            flags.CY = (result > 0xFF) ? 1 : 0;
+            flags.P = (registers.A.toString(2).split('1').length - 1) % 2 === 0 ? 1 : 0;
+            break;
+    
+        case 0x86: // ADD M (Add memory to register A)
+            let address = (registers.H << 8) | registers.L;
+            result = registers.A + memory[address];
+            registers.A = result & 0xFF;
+            flags.Z = (registers.A === 0) ? 1 : 0;
+            flags.S = (registers.A & 0x80) ? 1 : 0;
+            flags.CY = (result > 0xFF) ? 1 : 0;
+            flags.P = (registers.A.toString(2).split('1').length - 1) % 2 === 0 ? 1 : 0;
+            break;
+    
+        case 0x90: // SUB B
+            result = registers.A - registers.B;
+            registers.A = result & 0xFF;
+            flags.Z = (registers.A === 0) ? 1 : 0;
+            flags.S = (registers.A & 0x80) ? 1 : 0;
+            flags.CY = (result < 0) ? 1 : 0;
+            flags.P = (registers.A.toString(2).split('1').length - 1) % 2 === 0 ? 1 : 0;
+            break;
+    
+        case 0x91: // SUB C
+            result = registers.A - registers.C;
+            registers.A = result & 0xFF;
+            flags.Z = (registers.A === 0) ? 1 : 0;
+            flags.S = (registers.A & 0x80) ? 1 : 0;
+            flags.CY = (result < 0) ? 1 : 0;
+            flags.P = (registers.A.toString(2).split('1').length - 1) % 2 === 0 ? 1 : 0;
+            break;
+    
+        // Logical Instructions
+        case 0xA0: // ANA B (Logical AND register B with A)
+            registers.A = registers.A & registers.B;
+            flags.Z = (registers.A === 0) ? 1 : 0;
+            flags.S = (registers.A & 0x80) ? 1 : 0;
+            flags.P = (registers.A.toString(2).split('1').length - 1) % 2 === 0 ? 1 : 0;
+            break;
+    
+        case 0xA7: // ANA A (Logical AND register A with A)
+            registers.A = registers.A & registers.A;
+            flags.Z = (registers.A === 0) ? 1 : 0;
+            flags.S = (registers.A & 0x80) ? 1 : 0;
+            flags.P = (registers.A.toString(2).split('1').length - 1) % 2 === 0 ? 1 : 0;
+            break;
+    
+        case 0xB0: // ORA B (Logical OR register B with A)
+            registers.A = registers.A | registers.B;
+            flags.Z = (registers.A === 0) ? 1 : 0;
+            flags.S = (registers.A & 0x80) ? 1 : 0;
+            flags.P = (registers.A.toString(2).split('1').length - 1) % 2 === 0 ? 1 : 0;
+            break;
+    
+        // Branch Instructions
+        case 0xC3: // JMP address (Unconditional jump)
             registers.PC = memory[registers.PC] | (memory[registers.PC + 1] << 8);
             break;
-        case 0xC9: // RET
+    
+        case 0xCA: // JZ address (Jump if zero flag is set)
+            if (flags.Z === 1) {
+                registers.PC = memory[registers.PC] | (memory[registers.PC + 1] << 8);
+            } else {
+                registers.PC += 2; // Skip address
+            }
+            break;
+    
+        case 0xD2: // JNC address (Jump if no carry)
+            if (flags.CY === 0) {
+                registers.PC = memory[registers.PC] | (memory[registers.PC + 1] << 8);
+            } else {
+                registers.PC += 2; // Skip address
+            }
+            break;
+    
+        // Stack and Subroutine Instructions
+        case 0xC5: // PUSH B (Push register pair BC onto the stack)
+            memory[--registers.SP] = registers.B;
+            memory[--registers.SP] = registers.C;
+            break;
+    
+        case 0xD5: // PUSH D (Push register pair DE onto the stack)
+            memory[--registers.SP] = registers.D;
+            memory[--registers.SP] = registers.E;
+            break;
+    
+        case 0xE5: // PUSH H (Push register pair HL onto the stack)
+            memory[--registers.SP] = registers.H;
+            memory[--registers.SP] = registers.L;
+            break;
+    
+        case 0xF1: // POP PSW (Pop Processor Status Word)
+            registers.A = memory[registers.SP++];
+            const psw = memory[registers.SP++];
+            flags.Z = (psw & 0x40) ? 1 : 0;
+            flags.S = (psw & 0x80) ? 1 : 0;
+            flags.P = (psw & 0x04) ? 1 : 0;
+            flags.CY = (psw & 0x01) ? 1 : 0;
+            flags.AC = (psw & 0x10) ? 1 : 0;
+            break;
+    
+        case 0xC9: // RET (Return from subroutine)
             registers.PC = memory[registers.SP] | (memory[registers.SP + 1] << 8);
             registers.SP += 2;
             break;
-        case 0x76: // HLT - Halt the program
+    
+        case 0x76: // HLT (Halt execution)
             halted = true;
-            console.log('Program halted (HLT instruction).');
             return false; // Stop execution loop
+    
         default:
             console.log('Unsupported Opcode:', opcode.toString(16));
             break;
     }
+    
     return true; // Continue execution unless HLT
 }
 
