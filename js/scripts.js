@@ -904,3 +904,20 @@ document.getElementById("execute_button").addEventListener("click", () => {
 
 // Initialize the simulator on page load
 init();
+
+const reg_button = document.getElementById('reg_button');
+reg_button.addEventListener('click', () => {
+    // Get all elements with the class 'register-container'
+    var register_containers = document.getElementsByClassName('register-container');
+
+    // Convert HTMLCollection to an array and toggle display flex/none
+    Array.from(register_containers).forEach(container => {
+        if (container.style.display === 'flex') {
+            container.style.display = 'none'; // Hide the container
+        } else {
+            container.style.display = 'flex'; // Show the container
+        }
+    });
+});
+
+
