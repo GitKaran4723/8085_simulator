@@ -144,6 +144,10 @@ function execute(opcode) {
       registers.A = memory[(registers.H << 8) | registers.L];
       break;
 
+    case 0x77: // MOV M, A (Move the content of A into memory location pointed by HL)
+      memory[(registers.H << 8) | registers.L] = registers.A; // Store A at memory[HL]
+      break;
+
     case 0x78: // MOV A, B (Move the content of B into A)
       registers.A = registers.B; // Copy the value from register B to accumulator A
       break;
@@ -521,6 +525,13 @@ function execute(opcode) {
       flags.AC = (registers.E & 0x0f) + 1 > 0x0f ? 1 : 0;
       break;
 
+    case 0x23: // INX H (Increment the HL register pair by 1)
+      let hl = (registers.H << 8) | registers.L; // Combine H and L to form the HL register pair
+      hl = (hl + 1) & 0xffff; // Increment HL and ensure it stays within 16-bit limit
+      registers.H = (hl >> 8) & 0xff; // Update the higher byte (H)
+      registers.L = hl & 0xff; // Update the lower byte (L)
+      break;
+
     case 0x24: // INR H (Increment register H)
       registers.H = (registers.H + 1) & 0xff;
       flags.Z = registers.H === 0 ? 1 : 0;
@@ -741,7 +752,8 @@ function updateDisplay(executing = null) {
 
 // Run the simulator
 function run() {
-  if (!halted) {
+  if (!halted && !breakFlag) {
+    // Check for halt or break condition
     const opcode = fetch_code(); // Fetch the next instruction
     const running = execute(opcode); // Execute the instruction
     updateDisplay("Executing"); // Show "Executing" in the display during execution
@@ -754,6 +766,10 @@ function run() {
       halted = true;
       console.log("Execution halted.");
     }
+  } else if (breakFlag) {
+    console.log("Execution paused due to BREAK.");
+    updateDisplay(); // Update display after break
+    breakFlag = false; // Reset the break flag for future executions
   }
 }
 
@@ -767,21 +783,20 @@ document.getElementById("memory_button").addEventListener("click", () => {
   memoryDisplay.classList.toggle("hidden");
 
   if (!memoryDisplay.classList.contains("hidden")) {
-      // Show spinner while loading memory
-      loadingSpinner.classList.remove("hidden");
-      memoryContainer.classList.add("hidden"); // Hide memory container until data is loaded
+    // Show spinner while loading memory
+    loadingSpinner.classList.remove("hidden");
+    memoryContainer.classList.add("hidden"); // Hide memory container until data is loaded
 
-      // Simulate memory loading
-      setTimeout(() => {
-          displayMemory(); // Call the function to load memory
+    // Simulate memory loading
+    setTimeout(() => {
+      displayMemory(); // Call the function to load memory
 
-          // After loading is done, hide spinner and show memory container
-          loadingSpinner.classList.add("hidden");
-          memoryContainer.classList.remove("hidden");
-      }, 2000); // Simulating a 2 second delay for loading
+      // After loading is done, hide spinner and show memory container
+      loadingSpinner.classList.add("hidden");
+      memoryContainer.classList.remove("hidden");
+    }, 2000); // Simulating a 2 second delay for loading
   }
 });
-
 
 // Display memory content in table format
 function displayMemory() {
@@ -922,19 +937,42 @@ document.getElementById("execute_button").addEventListener("click", () => {
 // Initialize the simulator on page load
 init();
 
-const reg_button = document.getElementById('reg_button');
-reg_button.addEventListener('click', () => {
-    // Get all elements with the class 'register-container'
-    var register_containers = document.getElementsByClassName('register-container');
-
-    // Convert HTMLCollection to an array and toggle display flex/none
-    Array.from(register_containers).forEach(container => {
-        if (container.style.display === 'flex') {
-            container.style.display = 'none'; // Hide the container
-        } else {
-            container.style.display = 'flex'; // Show the container
-        }
-    });
+document.getElementById("step_button").addEventListener("click", () => {
+  if (!halted) {
+    step(); // Execute one instruction at a time
+  }
 });
 
+function step() {
+  const opcode = fetch_code(); // Fetch the next instruction (opcode)
+  const running = execute(opcode); // Execute the instruction
+  updateDisplay(); // Update the display with current values
 
+  if (!running) {
+    halted = true; // Stop execution if HLT instruction was encountered
+    console.log("Execution halted.");
+  }
+}
+
+let breakFlag = false; // Declare a flag to control breaking
+
+document.getElementById("break_button").addEventListener("click", () => {
+  breakFlag = true; // Set the flag to true to break the execution loop
+  console.log("Execution paused by BREAK.");
+});
+
+const reg_button = document.getElementById("reg_button");
+reg_button.addEventListener("click", () => {
+  // Get all elements with the class 'register-container'
+  var register_containers =
+    document.getElementsByClassName("register-container");
+
+  // Convert HTMLCollection to an array and toggle display flex/none
+  Array.from(register_containers).forEach((container) => {
+    if (container.style.display === "flex") {
+      container.style.display = "none"; // Hide the container
+    } else {
+      container.style.display = "flex"; // Show the container
+    }
+  });
+});
