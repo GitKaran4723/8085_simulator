@@ -687,11 +687,15 @@ function init() {
 
 const refresh_memory_button = document.getElementById("refresh_memory_button");
 refresh_memory_button.addEventListener("click", () => {
-  memory.fill(0x00);
-  saveMemory();
-  updateDisplay();
-  displayMemory();
-  console.log("Memory Reset.");
+  if (confirm("Want to Delete Memory? it is a permanent Action...")) {
+    memory.fill(0x00);
+    saveMemory();
+    updateDisplay();
+    displayMemory();
+    console.log("Memory Reset.");
+  } else {
+    console.log("Memory retained");
+  }
 });
 
 // Save memory to local storage
