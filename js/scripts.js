@@ -681,6 +681,7 @@ function init() {
   //saveMemory();
   updateDisplay();
   displayMemory(); // Call this to initially populate the memory table
+  halted = false;
   console.log("Simulator Initialized.");
 }
 
