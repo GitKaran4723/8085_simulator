@@ -128,11 +128,16 @@
         </div>
 
         <div id="memory_display" class="memory hidden">
-            <div class="memory_heading" >
-                <h3>Memory View</h3>
-                <button class="button memory_button" id="refresh_memory_button" title="Clean Memory">Clear Memory</button>
-            </div>
+            
+            <!-- Loading Spinner -->
+            <div id="loading_spinner" class="loading-spinner hidden">Loading Memory Please Wait...</div>
+
             <div id="memory_container" class="memory-container">
+                <div class="memory_heading">
+                    <h3>Memory View</h3>
+                    <button class="button memory_button" id="refresh_memory_button" title="Clean Memory">Clear
+                        Memory</button>
+                </div>
                 <div class="scrollable-table">
                     <table id="memory_table">
                         <!-- Memory rows will be dynamically inserted here -->

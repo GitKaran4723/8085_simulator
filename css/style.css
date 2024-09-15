@@ -233,6 +233,19 @@ body{
     justify-content: space-around;
 }
 
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    color: #333;
+    padding: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
 .memory_heading{
     display: flex;
     flex-direction: row;

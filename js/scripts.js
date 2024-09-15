@@ -760,11 +760,28 @@ function run() {
 // Toggle memory view
 document.getElementById("memory_button").addEventListener("click", () => {
   const memoryDisplay = document.getElementById("memory_display");
+  const loadingSpinner = document.getElementById("loading_spinner");
+  const memoryContainer = document.getElementById("memory_container");
+
+  // Toggle visibility of memory view
   memoryDisplay.classList.toggle("hidden");
+
   if (!memoryDisplay.classList.contains("hidden")) {
-    displayMemory();
+      // Show spinner while loading memory
+      loadingSpinner.classList.remove("hidden");
+      memoryContainer.classList.add("hidden"); // Hide memory container until data is loaded
+
+      // Simulate memory loading
+      setTimeout(() => {
+          displayMemory(); // Call the function to load memory
+
+          // After loading is done, hide spinner and show memory container
+          loadingSpinner.classList.add("hidden");
+          memoryContainer.classList.remove("hidden");
+      }, 2000); // Simulating a 2 second delay for loading
   }
 });
+
 
 // Display memory content in table format
 function displayMemory() {
