@@ -33,8 +33,8 @@ if (localStorage.getItem("memory")) {
 
 let halted = false; // Add a halted flag to stop execution properly
 
-// Function to fetch the next instruction
-function fetch() {
+// Function to fetch_code the next instruction
+function fetch_code() {
   const opcode = memory[registers.PC];
   registers.PC = (registers.PC + 1) & 0xffff; // Prevent overflow beyond 0xFFFF
   return opcode;
@@ -369,6 +369,10 @@ function execute(opcode) {
       registers.D = memory[(registers.H << 8) | registers.L]; // D = memory[HL]
       break;
 
+    case 0x57: // MOV D, A (Move the content of A into D)
+      registers.D = registers.A; // Copy the value from accumulator A to register D
+      break;
+
     case 0x58: // MOV E, B
       registers.E = registers.B;
       break;
@@ -669,14 +673,14 @@ function init() {
   console.log("Simulator Initialized.");
 }
 
-const refresh_memory_button = document.getElementById('refresh_memory_button');
-refresh_memory_button.addEventListener('click',()=>{
-    memory.fill(0x00);
-    saveMemory();
-    updateDisplay();
-    displayMemory();
-    console.log("Memory Reset.");
-})
+const refresh_memory_button = document.getElementById("refresh_memory_button");
+refresh_memory_button.addEventListener("click", () => {
+  memory.fill(0x00);
+  saveMemory();
+  updateDisplay();
+  displayMemory();
+  console.log("Memory Reset.");
+});
 
 // Save memory to local storage
 function saveMemory() {
@@ -738,7 +742,7 @@ function updateDisplay(executing = null) {
 // Run the simulator
 function run() {
   if (!halted) {
-    const opcode = fetch(); // Fetch the next instruction
+    const opcode = fetch_code(); // Fetch the next instruction
     const running = execute(opcode); // Execute the instruction
     updateDisplay("Executing"); // Show "Executing" in the display during execution
 

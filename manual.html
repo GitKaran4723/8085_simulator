@@ -1,42 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>8085 Simulator - Manual</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/manual.css">
+    <style>
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+
+        p {
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .step {
+            margin-bottom: 40px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .step img {
+            margin-top: 10px;
+        }
+    </style>
 </head>
+
 <body>
 
     <!-- Navbar -->
-    <header>
-        <nav class="navbar">
-            <div class="logo">8085 Simulator</div>
-            <ul>
-                <li><a href="simulator.html">Simulator</a></li>
-                <li><a href="opcode.html">Opcodes</a></li>
-                <li><a href="notes.html">Notes</a></li>
-                <li><a href="manual.html">Manual</a></li>
-            </ul>
-        </nav>
-    </header>
+    <div id="navbar"></div>
 
     <!-- Main Content -->
     <section class="content">
         <div class="container">
             <h1>How to Use the 8085 Simulator</h1>
-            <p>This section provides a manual to guide you through using the 8085 microprocessor simulator.</p>
-            <!-- Insert your manual content here -->
+            <p>This manual guides you through executing code and using all the buttons available in the 8085 simulator. Follow the steps below to get started.</p>
+
+            <!-- Step 1: Loading the Simulator -->
+            <div class="step">
+                <h2>Step 1: Loading the 8085 Simulator</h2>
+                <p>Open the 8085 simulator by navigating to the simulator page. The simulator interface will look like this:</p>
+                <!-- Screenshot of the Simulator Interface -->
+                <img src="path/to/simulator-screenshot.jpg" alt="8085 Simulator Interface Screenshot">
+            </div>
+
+            <!-- Step 2: Inputting Opcodes -->
+            <div class="step">
+                <h2>Step 2: Inputting Opcodes</h2>
+                <p>To input opcodes, select the memory address using the address input field. You can use the buttons or manually type in the opcodes into the respective memory locations as shown below:</p>
+                <!-- Screenshot of Opcode Input -->
+                <img src="path/to/opcode-input-screenshot.jpg" alt="Inputting Opcodes Screenshot">
+            </div>
+
+            <!-- Step 3: Using Control Buttons -->
+            <div class="step">
+                <h2>Step 3: Using Control Buttons</h2>
+                <p>The simulator includes a set of control buttons that allow you to execute, reset, and step through instructions. Below is an explanation of each button:</p>
+
+                <ul>
+                    <li><strong>Run:</strong> This button will execute the program from the first address in memory until it hits a HALT instruction.</li>
+                    <li><strong>Step:</strong> Use this button to step through the instructions one at a time, useful for debugging and understanding how the processor works.</li>
+                    <li><strong>Reset:</strong> Clears the program and resets the simulator to its initial state.</li>
+                    <li><strong>Load:</strong> Loads predefined opcodes into memory.</li>
+                </ul>
+
+                <!-- Screenshot of Control Buttons -->
+                <img src="path/to/control-buttons-screenshot.jpg" alt="Control Buttons Screenshot">
+            </div>
+
+            <!-- Step 4: Viewing Registers and Memory -->
+            <div class="step">
+                <h2>Step 4: Viewing Registers and Memory</h2>
+                <p>Once the program is running or stepping through instructions, the registers and memory will be updated accordingly. The current state of the registers can be seen in the 'Registers' panel, and the memory contents are displayed in a grid. Here's an example of how to view the registers:</p>
+                <!-- Screenshot of Register and Memory View -->
+                <img src="path/to/registers-memory-screenshot.jpg" alt="Registers and Memory Screenshot">
+            </div>
+
+            <!-- Step 5: Debugging -->
+            <div class="step">
+                <h2>Step 5: Debugging</h2>
+                <p>Use the 'Step' button to go through your program one instruction at a time. This allows you to watch how each instruction affects the registers and memory, making it easy to spot errors.</p>
+                <!-- Screenshot of Debugging -->
+                <img src="path/to/debugging-screenshot.jpg" alt="Debugging Screenshot">
+            </div>
+
         </div>
     </section>
 
     <!-- Footer -->
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 8085 Microprocessor Simulator. All Rights Reserved.</p>
-            <p>Contact us: <a href="mailto:support@8085simulator.com">support@8085simulator.com</a></p>
-        </div>
-    </footer>
+    <div id="footer"></div>
+
+    <script src="js/common_scripts.js"></script>
+
+    <script>
+        fetch('components/navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar').innerHTML = data;
+            })
+
+        fetch('components/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer').innerHTML = data;
+            })
+    </script>
 
 </body>
+
 </html>

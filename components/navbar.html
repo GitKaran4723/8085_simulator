@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8085 Simulator</title>
+    <style>
+        /* Navbar Styles */
+        .navbar {
+            background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        .navbar ul {
+            list-style: none;
+            display: flex; /* Show the menu by default */
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar ul li {
+            margin-left: 20px;
+        }
+
+        .navbar ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+        }
+
+        .navbar ul li a:hover,
+        .navbar ul li a.active {
+            background-color: #555;
+            border-radius: 5px;
+        }
+
+        .logo {
+            font-size: 1.5em;
+        }
+
+        /* Hamburger menu styles (hidden by default for larger screens) */
+        .menu-icon {
+            display: none;
+            font-size: 2em;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            /* Show the hamburger icon and hide the regular navbar for small screens */
+            .menu-icon {
+                display: block;
+            }
+
+            /* Hide the menu on small screens until the hamburger icon is clicked */
+            .navbar ul {
+                display: none;
+            }
+
+            /* When the menu is active (visible), show the menu items */
+            .navbar.active ul {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                position: absolute;
+                top: 50px;
+                left: 0;
+                background-color: #333;
+                padding: 0;
+            }
+
+            .navbar.active ul li {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+
+            .navbar.active ul li a {
+                padding: 10px;
+                text-align: center;
+                display: block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar">
+            <div class="logo">8085 Simulator</div>
+            <div class="menu-icon" onclick="toggleMenu()">☰</div> <!-- Hamburger icon -->
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="simulator.html">Simulator</a></li>
+                <li><a href="opcode.html">Opcodes</a></li>
+                <li><a href="manual.html">Manual</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Move the script here -->
+    <script>
+        function toggleMenu() {
+            const navbar = document.querySelector('.navbar');
+            navbar.classList.toggle('active'); // Toggle the active class to show/hide the menu
+        }
+    </script>
+
+</body>
+
+</html>

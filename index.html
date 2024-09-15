@@ -1,41 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>8085 Simulator - Home</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .index_body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .section img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        p {
+            font-size: 1em;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        footer p{
+            color: #fff;
+        }
+    </style>
 </head>
-<body>
+
+<body class="index_body">
 
     <!-- Navbar -->
-    <header>
-        <nav class="navbar">
-            <div class="logo">8085 Simulator</div>
-            <ul>
-                <li><a href="simulator.html">Simulator</a></li>
-                <li><a href="opcode.html">Opcodes</a></li>
-                <li><a href="notes.html">Notes</a></li>
-                <li><a href="manual.html">Manual</a></li>
-            </ul>
-        </nav>
-    </header>
+    <div id="navbar"></div>
 
     <!-- Main Content -->
     <section class="content">
         <div class="container">
             <h1>Welcome to the 8085 Microprocessor Simulator</h1>
-            <p>This tool allows you to simulate the functioning of the 8085 microprocessor. Choose a section from the navigation bar to explore.</p>
+            <p>This tool allows you to simulate the functioning of the 8085 microprocessor. Choose a section from the
+                navigation bar to explore.</p>
+
+            <!-- Section for 8085 Architecture Diagram -->
+            <div class="section">
+                <h2>8085 Microprocessor Architecture Diagram</h2>
+                <!-- Placeholder for architecture image -->
+                <img src="path/to/architecture-diagram.jpg" alt="8085 Architecture Diagram">
+                <p>The diagram above represents the architecture of the 8085 microprocessor, showing the various components such as the ALU, registers, and control unit.</p>
+            </div>
+
+            <!-- Section for Parts of the Microprocessor -->
+            <div class="section">
+                <h2>Parts of the 8085 Microprocessor</h2>
+                
+                <!-- ALU Section -->
+                <h3>1. Arithmetic and Logic Unit (ALU)</h3>
+                <!-- Placeholder for ALU image -->
+                <img src="path/to/alu-image.jpg" alt="8085 ALU">
+                <p>The ALU performs arithmetic operations (addition, subtraction) and logic operations (AND, OR, XOR). It is one of the most crucial components of the microprocessor.</p>
+
+                <!-- Register Section -->
+                <h3>2. Registers</h3>
+                <!-- Placeholder for Register image -->
+                <img src="path/to/registers-image.jpg" alt="8085 Registers">
+                <p>Registers are small memory units within the microprocessor used to store data temporarily during processing. 8085 has several registers like the accumulator, flag register, and general-purpose registers.</p>
+
+                <!-- Control Unit Section -->
+                <h3>3. Control Unit</h3>
+                <!-- Placeholder for Control Unit image -->
+                <img src="path/to/control-unit-image.jpg" alt="8085 Control Unit">
+                <p>The control unit directs the operations of the processor by generating control signals and coordinating the execution of instructions in the correct order.</p>
+
+                <!-- Stack Pointer and Program Counter -->
+                <h3>4. Stack Pointer (SP) and Program Counter (PC)</h3>
+                <!-- Placeholder for SP and PC image -->
+                <img src="path/to/sp-pc-image.jpg" alt="8085 Stack Pointer and Program Counter">
+                <p>The Stack Pointer and Program Counter are special purpose registers. The Stack Pointer points to the current stack location, while the Program Counter holds the address of the next instruction to be executed.</p>
+            </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 8085 Microprocessor Simulator. All Rights Reserved.</p>
-            <p>Contact us: <a href="mailto:support@8085simulator.com">support@8085simulator.com</a></p>
-        </div>
-    </footer>
+    <div id="footer"></div>
 
+    <script src="js/common_scripts.js"></script>
+    
+    <script>
+        fetch('components/navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar').innerHTML = data;
+            })
+
+        fetch('components/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer').innerHTML = data;
+            })
+    </script>
 </body>
+
 </html>

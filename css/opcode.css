@@ -1,12 +1,19 @@
 /* Basic reset for the table */
-body{
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.body_container {
     margin: 5%;
 }
 
-#heading{
+#heading {
     text-align: center;
 }
 
+/* Base table styling */
 table {
     border-collapse: collapse;
     width: 100%;
@@ -68,4 +75,41 @@ caption {
     max-width: 600px;
     border: 1px solid #ddd;
     border-radius: 4px;
+}
+
+/* Make the table responsive */
+@media (max-width: 768px) {
+    table {
+        display: block; /* Display table as block for scrolling */
+        overflow-x: auto; /* Allow horizontal scrolling */
+        white-space: nowrap; /* Prevent table from wrapping cells */
+    }
+
+    th, td {
+        font-size: 0.9em; /* Slightly smaller text for mobile */
+        padding: 8px; /* Reduce padding for mobile */
+    }
+
+    .search-container input {
+        width: 90%; /* Reduce the width of the search bar on mobile */
+        font-size: 0.9em; /* Slightly reduce font size for search bar */
+    }
+
+    caption {
+        font-size: 1.2em; /* Reduce font size for caption on mobile */
+        text-align: center; /* Center-align caption for mobile */
+    }
+}
+
+/* Adjustments for very small screens (e.g., mobile phones) */
+@media (max-width: 480px) {
+    th, td {
+        font-size: 0.8em; /* Further reduce font size for very small screens */
+        padding: 6px; /* Smaller padding for very small screens */
+    }
+
+    .search-container input {
+        width: 85%; /* Further reduce the width of the search bar */
+        font-size: 0.8em; /* Reduce font size for search bar */
+    }
 }
