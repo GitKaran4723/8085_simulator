@@ -58,7 +58,7 @@
                     <div class="keypad">
                         <div class="row">
                             <button class="button" id="break_button" title="Break Execution">BREAK</button>
-                            <button class="button" id="reg_button" title="View Registers">REG</button>
+                            <button class="button" id="register_button" title="Registers">REG</button>
                             <button class="button" id="dec_button" title="Decrement Address">DEC</button>
                             <button class="button" id="inc_button" title="Increment Address">INC</button>
                         </div>
@@ -67,7 +67,7 @@
                             <button class="button" id="step_button" title="Step Execution">STEP</button>
                             <button class="button" id="input_button" title="Input Data">INPUT</button>
                             <button class="button" id="output_button" title="Output Data">OUTPUT</button>
-                            <button class="button" id="star_button" title="Set Address">*</button>
+                            <button class="button" id="star_button" title="Switch Display">*</button>
                         </div>
 
                         <div class="row">
@@ -87,44 +87,51 @@
                     </div>
                 </div>
 
-
-
-
-                <div class="register-container">
-                    <h3>Registers</h3>
-                    <div class="register-display">
-                        <p>A: <span id="register-A">00</span></p>
-                        <p>B: <span id="register-B">00</span></p>
-                        <p>C: <span id="register-C">00</span></p>
-                        <p>D: <span id="register-D">00</span></p>
-                        <p>E: <span id="register-E">00</span></p>
-                        <p>H: <span id="register-H">00</span></p>
-                        <p>L: <span id="register-L">00</span></p>
-                        <p>SP: <span id="register-SP">FFFF</span></p>
-                        <p>PC: <span id="register-PC">0000</span></p>
-                    </div>
-
-                    <h3>Flags</h3>
-                    <div class="flag-display">
-                        <p>Z: <span id="flag-Z">0</span></p>
-                        <p>S: <span id="flag-S">0</span></p>
-                        <p>P: <span id="flag-P">0</span></p>
-                        <p>CY: <span id="flag-CY">0</span></p>
-                        <p>AC: <span id="flag-AC">0</span></p>
-                    </div>
-                </div>
-
             </div>
 
         </div>
 
         <div class="memory_buttons">
-            <button class="button memory_button" id="memory_button" title="View Memory">Memory</button>
-            <button class="button memory_button" id="refresh_memory_button" title="Delete Memory">Reset Memory</button>
+            <button class="button" id="reg_button" title="Registers">Registers</button>
+            <button class="button memory_button" id="memory_button" title="Memory">Memory</button>
+        </div>
+
+        <div class="register-container">
+            <div class="full-reg-display">
+                <h3>Registers</h3>
+                <div class="register-display">
+                    <p>A: <span id="register-A">00</span></p>
+                    <p>B: <span id="register-B">00</span></p>
+                    <p>C: <span id="register-C">00</span></p>
+                    <p>D: <span id="register-D">00</span></p>
+                    <p>E: <span id="register-E">00</span></p>
+                    <p>H: <span id="register-H">00</span></p>
+                    <p>L: <span id="register-L">00</span></p>
+                    <p>SP: <span id="register-SP">FFFF</span></p>
+                    <p>PC: <span id="register-PC">0000</span></p>
+                </div>
+            </div>
+
+            <div class="full-flag-display">
+
+
+                <h3>Flags</h3>
+                <div class="flag-display">
+                    <p>Z: <span id="flag-Z">0</span></p>
+                    <p>S: <span id="flag-S">0</span></p>
+                    <p>P: <span id="flag-P">0</span></p>
+                    <p>CY: <span id="flag-CY">0</span></p>
+                    <p>AC: <span id="flag-AC">0</span></p>
+                </div>
+            </div>
+
         </div>
 
         <div id="memory_display" class="memory hidden">
-            <h3>Memory View</h3>
+            <div class="memory_heading" >
+                <h3>Memory View</h3>
+                <button class="button memory_button" id="refresh_memory_button" title="Clean Memory">Clear Memory</button>
+            </div>
             <div id="memory_container" class="memory-container">
                 <div class="scrollable-table">
                     <table id="memory_table">
