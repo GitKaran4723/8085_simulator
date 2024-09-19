@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructions</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS for styling -->
+    <style>
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h2 {
+            color: #333;
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            color: #444;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 10px;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #555;
+        }
+
+        strong {
+            color: #007bff;
+            /* Highlighted text color */
+        }
+
+        code {
+            background-color: #eaeaea;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Instructions</h2>
+
+        <div class="section">
+            <h3>Introduction</h3>
+            <p>
+                As soon as the simulator is initiated, the address display is selected by default.
+                You can input data into the address display using the hexadecimal keyboard keys.
+                Upon entering an address, the dynamically stored data in that memory address is updated in the code
+                display.
+            </p>
+        </div>
+
+        <div class="section">
+            <h3>Entering the Keys</h3>
+            <p>
+                Clicking the <strong>*</strong> button allows you to switch to the other display for input.
+                Use the <strong>INC</strong> button to increase the address immediately, regardless of which display is
+                active.
+                Similarly, use the <strong>DEC</strong> button to decrease the address, and you will see the stored data
+                reflected in the code display.
+            </p>
+        </div>
+
+        <div class="section">
+            <h3>Execution</h3>
+            <p>
+                After writing your complete code, do not forget to include the <strong>HALT</strong> instruction.
+                Use the <strong>RESET</strong> button to reset all registers and flags, which will set the address
+                display back to <code>0000</code>.
+                Initially, enter the starting address of your code, and then click the <strong>EXEC</strong> button to
+                execute.
+                The moment you press <strong>EXEC</strong>, it will appear in the code display.
+            </p>
+        </div>
+
+        <div class="section">
+            <h3>Debugging Code</h3>
+            <p>
+                You can use the <strong>STEP</strong> button to execute statements one by one and observe the registers
+                by clicking the <strong>Registers</strong> button below the simulator.
+                You can also view the entire memory stored in the simulator by clicking on the <strong>Memory</strong>
+                button.
+            </p>
+            <p>
+                In case the execution never halts, you will need to reload the page to initialize the simulator again.
+                The good news is that the simulator does not lose entered data in memory.
+                If you wish to clear the memory, use the <strong style="color: red;">Clear Memory</strong> button
+                displayed in red alongside the memory data.
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

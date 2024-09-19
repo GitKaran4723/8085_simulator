@@ -91,6 +91,38 @@
 
         </div>
 
+        <!-- Instructions page -->
+        <div id="popup" class="popup">
+            <div class="popup-content">
+                <span class="close-btn" id="closePopup">&times;</span>
+                <div id="instructionContent">Loading instructions...</div>
+            </div>
+        </div>
+
+        <script>
+            document.getElementById('help_button').onclick = function () {
+                fetch('./instructions.html')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        document.getElementById('instructionContent').innerHTML = data;
+                        document.getElementById('popup').style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('There was a problem with the fetch operation:', error);
+                    });
+            }
+
+            document.getElementById('closePopup').onclick = function () {
+                document.getElementById('popup').style.display = 'none';
+            }
+            
+        </script>
+
         <div class="memory_buttons">
             <button class="button" id="reg_button" title="Registers">Registers</button>
             <button class="button memory_button" id="memory_button" title="Memory">Memory</button>
@@ -137,7 +169,7 @@
         </div>
 
         <div id="memory_display" class="memory hidden">
-            
+
             <!-- Loading Spinner -->
             <div id="loading_spinner" class="loading-spinner hidden">Loading Memory Please Wait...</div>
 
