@@ -290,11 +290,11 @@ body{
     overflow-y: auto; /* Enable vertical scrolling */
 }
 
-.help_instruction{
+.instruction_help{
     color: white;
 }
 
-.help_instruction span{
+.instruction_help span{
     background-color: white;
     padding: 3px;
     border-radius: 4px;
