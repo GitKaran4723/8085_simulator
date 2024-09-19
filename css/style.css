@@ -290,6 +290,19 @@ body{
     overflow-y: auto; /* Enable vertical scrolling */
 }
 
+.help_instruction{
+    color: white;
+}
+
+.help_instruction span{
+    background-color: white;
+    padding: 3px;
+    border-radius: 4px;
+    font-weight: bold;
+    color: #000;
+    cursor: pointer;
+}
+
 .close-btn {
     position: absolute;
     top: 10px;
