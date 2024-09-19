@@ -120,6 +120,7 @@ function execute(opcode) {
       break;
 
     case 0x3a: // LDA addr (Load memory value into accumulator A)
+      console.log("Executing 3A....");
       const lowByte = memory[registers.PC]; // Get the low byte of the address
       const highByte = memory[registers.PC + 1]; // Get the high byte of the address
       const address = (highByte << 8) | lowByte; // Combine to form the full 16-bit address
@@ -235,10 +236,17 @@ function execute(opcode) {
       break;
 
     case 0xca: // JZ address (Jump if zero flag is set)
+      console.log("CA executing...");
+      let lowByte_CA = memory[registers.PC]; // fetch the lower bit
+      let highByte_CA = memory[registers.PC + 1]; // fetch the high byte of the address
+
+      let address_CA = (highByte_CA << 8) | lowByte_CA; // combine both higher and the lower bit
+
+      registers.PC += 2; // increment the program counter to skip over over the address
+
       if (flags.Z === 1) {
-        registers.PC = memory[registers.PC] | (memory[registers.PC + 1] << 8);
-      } else {
-        registers.PC += 2; // Skip address
+        // if zero plag is set
+        registers.PC = address_CA;
       }
       break;
 
@@ -658,12 +666,141 @@ function execute(opcode) {
       memory[(registers.D << 8) | registers.E] = registers.A; // memory[DE] = A
       break;
 
+    // changes
+    case 0x0f: // RRC (Rotate accumulator right through carry)
+      let lsb = registers.A & 0x01; // Extract the least significant bit
+      registers.A = (registers.A >> 1) | (lsb << 7); // Rotate right and move LSB to MSB
+      flags.CY = lsb; // The LSB is stored in the carry flag
+      break;
+
+    // --------------------------------------------------------------------------------------------------
+    // changes
+    case 0x2b: // DCX H (Decrement HL register pair by one)
+      let hl_d = (registers.H << 8) | registers.L; // combine H and L to form the HL register pair
+      hl_d = (hl_d - 1) & 0xffff; // Decrement HL pair ensure it remains in the 16 bit limit
+      registers.H = (hl_d >> 8) & 0xff; // update the higher byte (H)
+      registers.L = hl_d & 0xff; // update the lower byte (L)
+      break;
+
+    // changes
+    case 0x2f:
+      registers.A = ~registers.A & 0xff;
+      break;
+
+    case 0xc6: // add immidiate 8-bit data to the accummulator
+      let immediateValue = memory[registers.PC]; // fetch the immidiate value from the memory
+      registers.PC += 1; // increment the program counter
+      let result_A = registers.A + immediateValue;
+      flags.CY = result_A > 0xff ? 1 : 0;
+      registers.A = result_A & 0xff; // store the result_A in accummulator(keep only 8 bits)
+
+      // set zero, Sign, Parity, Auxiliary carry (AC)
+      flags.Z = registers.A === 0 ? 1 : 0; // set zero flag if result_A is Zero
+      flags.S = registers.A & 0x80 ? 1 : 0; // Set sign flag if result_A is negative
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0; // set parity flag for even parity
+      flags.AC = (registers.A & 0x0f) + (immediateValue & 0x0f) > 0x0f ? 1 : 0; // set auxiliary carry flag for lower nibble carry
+      break;
+
+    case 0x6f: // MOV L, A (Move the content of A into L)
+      registers.L = registers.A; // copy the value from accummulator to register L
+      break;
+
+    case 0xbe: // CMP M (compare the value at memory location [HL] with A)
+      let memoryValue = memory[(registers.H << 8) | registers.L]; // Get the value at memory [HL]
+      let result_cmp = registers.A - memoryValue; // perform the subtraction (A - [HL])
+      // set the zero plag (Z) if the result is zero
+      flags.Z = (result_cmp & 0xff) === 0 ? 1 : 0;
+      flags.S = (result_cmp & 0x08) !== 0 ? 1 : 0;
+      flags.CY = registers.A < memoryValue ? 1 : 0;
+      flags.P =
+        ((result_cmp & 0xff).toString(2).split("1").length - 1) % 2 === 0
+          ? 1
+          : 0;
+      flags.AC = (registers.A & 0x0f) - (memoryValue & 0x0f) < 0 ? 1 : 0;
+      break;
+
+    case 0xf6: // ORI D8 (logical OR immidiate with with accumulator)
+      let immediateValue_f6 = memory[registers.PC]; // fetch the immediate value from memory
+      registers.PC += 1; // increment the program counter
+      registers.A = registers.A | immediateValue_f6; // perform bitwise OR with the accumulator
+      flags.Z = registers.A === 0 ? 1 : 0; // set the zero flag if the result is zero
+      flags.S = registers.A & 0x80 ? 1 : 0; // set the sign flag if the result is negative (MSB is 1)
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0; // set parity flag for the even parity
+
+      flags.CY = 0; // OR operation does not affect the carry flag, so it is reset
+      flags.AC = 0; // Auxiliary carry flag is also unaffected and reset
+
+      break;
+
+    case 0xda: // JC adress (Jump to the specific adress if the carry flag is set)
+      let lowByte_da = memory[registers.PC]; // fetch the low byte of the adress
+      let highByte_da = memory[registers.PC + 1]; // fetch the high byte of the address
+      let address_da = (highByte_da << 8) | lowByte_da; // combine low and high bit to form a 16 bit address
+      registers.PC += 2; // Increment program counter to move past the address
+      if (flags.CY === 1) {
+        // if the carry flag is set
+        registers.PC = address_da;
+      }
+      break;
+
+    case 0xfa:
+      let lowByte_fa = memory[registers.PC];
+      let highByte_fa = memory[registers.PC + 1];
+
+      let address_fa = (highByte_fa << 8) | lowByte_fa; // combine to for 16 bit address
+
+      registers.PC += 2;
+
+      if (flags.S === 1) {
+        //the sign of the flag is set
+        registers.PC = address_fa;
+      }
+      break;
+
+    case 0xf2: // jump if sign flag is not set
+      let lowByte_f2 = memory[registers.PC];
+      let highByte_f2 = memory[registers.PC + 1]; // fetch the high byte of the address
+
+      let address_f2 = (highByte_f2 << 8) | lowByte_f2;
+
+      registers.PC += 2;
+
+      if (flags.S === 0) {
+        //the sign of the flag is set
+        registers.PC = address_f2;
+      }
+      break;
+
+    case 0xe6:
+      let immediateValue_e6 = memory[registers.PC];
+
+      registers.PC += 1;
+
+      registers.A = registers.A & immediateValue_e6; // perform bitwise and with accumulator
+
+      // set zero, Sign, Parity, Auxiliary carry (AC)
+      flags.Z = registers.A === 0 ? 1 : 0; // set zero flag if result_A is Zero
+      flags.S = registers.A & 0x80 ? 1 : 0; // Set sign flag if result_A is negative
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0; // set parity flag for even parity
+
+      flags.CY = 0; // operation does not affect carry flag
+      flags.AC = 1; // auxiliary carry is always set to 1 for ANI
+      break;
+
     default:
+      opcode_aler(opcode.toString(16));
       console.log("Unsupported Opcode:", opcode.toString(16));
       break;
   }
 
   return true; // Continue execution unless HLT
+}
+
+function opcode_aler(opcode) {
+  alert(opcode.toUpperCase() + " -> this opcode need to be updated");
 }
 
 // Initialize the simulator
@@ -682,6 +819,7 @@ function init() {
   updateDisplay();
   displayMemory(); // Call this to initially populate the memory table
   halted = false;
+  document.getElementById("address_display").classList.add("active");
   console.log("Simulator Initialized.");
 }
 
