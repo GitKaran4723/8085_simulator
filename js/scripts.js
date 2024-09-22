@@ -195,14 +195,28 @@ function execute(opcode) {
         (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
       break;
 
-    case 0x91: // SUB C
-      result = registers.A - registers.C;
-      registers.A = result & 0xff;
+    case 0x91: // SUB C (Subtract register C from accumulator A)
+      console.log("Executing 91");
+      console.log("difference in a",registers.A - registers.C)
+      let result_91 = registers.A - registers.C;
+
+      console.log("Result"+result_91);
+      // Handle the 8-bit wrap-around by keeping the lower 8 bits
+      registers.A = result_91 & 0xff;
+
+      // Set the Zero flag (Z) if the result is zero
       flags.Z = registers.A === 0 ? 1 : 0;
+
+      // Set the Sign flag (S) if the most significant bit (bit 7) of the result is 1
       flags.S = registers.A & 0x80 ? 1 : 0;
-      flags.CY = result < 0 ? 1 : 0;
+
+      // Set the Carry flag (CY) if the subtraction resulted in a borrow (i.e., result is negative)
+      flags.CY = result_91 < 0 ? 1 : 0;
+
+      // Set the Parity flag (P) based on whether the number of 1's in the result is even
       flags.P =
         (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+
       break;
 
     // Logical Instructions
@@ -815,7 +829,7 @@ function init() {
     registers.L =
       0x00;
   flags.AC = flags.CY = flags.P = flags.S = flags.Z = 0;
-  
+
   //memory.fill(0x00);
   //saveMemory();
   updateDisplay();
@@ -1071,7 +1085,6 @@ document.querySelectorAll(".button").forEach((button) => {
 
 // Reset the simulator
 document.getElementById("reset_button").addEventListener("click", () => {
-
   saveMemory(); // Save the memory to local storage after reset
   init();
 });
