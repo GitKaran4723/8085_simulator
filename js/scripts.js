@@ -814,12 +814,16 @@ function init() {
     registers.H =
     registers.L =
       0x00;
+  flags.AC = flags.CY = flags.P = flags.S = flags.Z = 0;
+  
   //memory.fill(0x00);
   //saveMemory();
   updateDisplay();
   displayMemory(); // Call this to initially populate the memory table
   halted = false;
+  selectedDisplay = "address";
   document.getElementById("address_display").classList.add("active");
+  document.getElementById("code_display").classList.remove("active");
   console.log("Simulator Initialized.");
 }
 
@@ -1067,6 +1071,7 @@ document.querySelectorAll(".button").forEach((button) => {
 
 // Reset the simulator
 document.getElementById("reset_button").addEventListener("click", () => {
+
   saveMemory(); // Save the memory to local storage after reset
   init();
 });
