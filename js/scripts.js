@@ -54,6 +54,23 @@ function execute(opcode) {
       registers.PC += 2;
       break;
 
+    case 0x05: // DCR B (Decrement the value of register B by 1)
+      registers.B = (registers.B - 1) & 0xff; // Decrement B and ensure it stays within 8 bits
+
+      // Set the Zero flag (Z) if the result is zero
+      flags.Z = registers.B === 0 ? 1 : 0;
+
+      // Set the Sign flag (S) if the result is negative (MSB is 1)
+      flags.S = registers.B & 0x80 ? 1 : 0;
+
+      // Set the Parity flag (P) based on whether the number of 1's in the result is even
+      flags.P =
+        (registers.B.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+
+      // Set the Auxiliary Carry flag (AC) if there is a borrow from bit 3 to bit 4
+      flags.AC = (registers.B & 0x0f) === 0x0f ? 1 : 0;
+      break;
+
     case 0x4f: // MOV C, A (Move the content of A into C)
       registers.C = registers.A; // Copy the value from accumulator A to register C
       break;
@@ -128,6 +145,55 @@ function execute(opcode) {
       registers.PC += 2; // Increment PC by 2 since we fetched a 16-bit address
       break;
 
+    case 0x3c: // INR A (Increment the accumulator by 1)
+      registers.A = (registers.A + 1) & 0xff; // Increment accumulator and ensure it stays within 8 bits
+
+      // Set the Zero flag (Z) if the result is zero
+      flags.Z = registers.A === 0 ? 1 : 0;
+
+      // Set the Sign flag (S) if the result is negative (MSB is 1)
+      flags.S = registers.A & 0x80 ? 1 : 0;
+
+      // Set the Parity flag (P) based on whether the number of 1's in the result is even
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+
+      // Set the Auxiliary Carry flag (AC) if there is a carry from bit 3 to bit 4
+      flags.AC = (registers.A & 0x0f) === 0 ? 1 : 0; // If the lower nibble overflows, AC is set
+      break;
+
+    case 0xc2: // JNZ address (Jump if Zero flag is not set)
+      let lowByteC2 = memory[registers.PC]; // Fetch the low byte of the address
+      let highByteC2 = memory[registers.PC + 1]; // Fetch the high byte of the address
+      let addressC2 = (highByteC2 << 8) | lowByteC2; // Combine low and high byte to form the 16-bit address
+      registers.PC += 2; // Increment the program counter to move past the address
+
+      if (flags.Z === 0) {
+        // If the Zero flag is not set (i.e., result is not zero)
+        registers.PC = addressC2; // Jump to the specified address
+      }
+      break;
+
+    case 0xce: // ACI D8 (Add immediate with carry)
+      let immediateValueCE = memory[registers.PC]; // Fetch the immediate value from memory
+      registers.PC += 1; // Increment the program counter to move past the immediate value
+
+      let carry = flags.CY ? 1 : 0; // Get the value of the carry flag (1 if set, 0 if not)
+      let resultCE = registers.A + immediateValueCE + carry; // Add immediate value and carry to the accumulator
+
+      // Set the accumulator to the result (keep within 8-bit limits)
+      registers.A = resultCE & 0xff;
+
+      // Set flags
+      flags.Z = registers.A === 0 ? 1 : 0; // Zero flag
+      flags.S = registers.A & 0x80 ? 1 : 0; // Sign flag
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0; // Parity flag
+      flags.CY = resultCE > 0xff ? 1 : 0; // Carry flag if the result is greater than 255 (8 bits)
+      flags.AC =
+        (registers.A & 0x0f) + (immediateValueCE & 0x0f) + carry > 0x0f ? 1 : 0; // Auxiliary carry flag
+      break;
+
     case 0x47: // MOV B, A (Move the content of A into B)
       registers.B = registers.A; // Copy the value from accumulator A to register B
       break;
@@ -197,10 +263,10 @@ function execute(opcode) {
 
     case 0x91: // SUB C (Subtract register C from accumulator A)
       console.log("Executing 91");
-      console.log("difference in a",registers.A - registers.C)
+      console.log("difference in a", registers.A - registers.C);
       let result_91 = registers.A - registers.C;
 
-      console.log("Result"+result_91);
+      console.log("Result" + result_91);
       // Handle the 8-bit wrap-around by keeping the lower 8 bits
       registers.A = result_91 & 0xff;
 
@@ -773,17 +839,16 @@ function execute(opcode) {
       }
       break;
 
-    case 0xf2: // jump if sign flag is not set
-      let lowByte_f2 = memory[registers.PC];
-      let highByte_f2 = memory[registers.PC + 1]; // fetch the high byte of the address
+    case 0xf2: // JP address (Jump if Sign flag is not set)
+      let lowByte_f2 = memory[registers.PC]; // Fetch the low byte of the address
+      let highByte_f2 = memory[registers.PC + 1]; // Fetch the high byte of the address
 
-      let address_f2 = (highByte_f2 << 8) | lowByte_f2;
-
-      registers.PC += 2;
+      let address_f2 = (highByte_f2 << 8) | lowByte_f2; // Combine low and high byte to form the 16-bit address
+      registers.PC += 2; // Increment PC to move past the address
 
       if (flags.S === 0) {
-        //the sign of the flag is set
-        registers.PC = address_f2;
+        // Jump if the Sign flag is not set (i.e., result is positive or zero)
+        registers.PC = address_f2; // Set the program counter to the target address
       }
       break;
 
