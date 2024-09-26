@@ -221,42 +221,43 @@ function execute(opcode) {
 
     // Arithmetic Instructions
     case 0x80: // ADD B (Add register B to register A)
-      let result = registers.A + registers.B;
-      registers.A = result & 0xff;
+      let result_80 = registers.A + registers.B;
+      registers.A = result_80 & 0xff;
       flags.Z = registers.A === 0 ? 1 : 0;
       flags.S = registers.A & 0x80 ? 1 : 0;
-      flags.CY = result > 0xff ? 1 : 0;
+      flags.CY = result_80 > 0xff ? 1 : 0;
       flags.P =
         (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
       break;
 
     case 0x81: // ADD C
-      result = registers.A + registers.C;
-      registers.A = result & 0xff;
+      let result_81 = registers.A + registers.C;
+      registers.A = result_81 & 0xff;
       flags.Z = registers.A === 0 ? 1 : 0;
       flags.S = registers.A & 0x80 ? 1 : 0;
-      flags.CY = result > 0xff ? 1 : 0;
+      flags.CY = result_81 > 0xff ? 1 : 0;
       flags.P =
         (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
       break;
 
     case 0x86: // ADD M (Add memory to register A)
       let addressM = (registers.H << 8) | registers.L;
-      result = registers.A + memory[addressM];
-      registers.A = result & 0xff;
+      let result_86 = registers.A + memory[addressM];
+      registers.A = result_86 & 0xff;
       flags.Z = registers.A === 0 ? 1 : 0;
       flags.S = registers.A & 0x80 ? 1 : 0;
-      flags.CY = result > 0xff ? 1 : 0;
+      flags.CY = result_86 > 0xff ? 1 : 0;
       flags.P =
         (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
       break;
 
     case 0x90: // SUB B
-      result = registers.A - registers.B;
-      registers.A = result & 0xff;
+      let result_90 = registers.A - registers.B;
+      flags.AC = (registers.A & 0x0f) < (registers.B & 0x0f) ? 1 : 0; // Borrow from lower nibble
+      registers.A = result_90 & 0xff;
       flags.Z = registers.A === 0 ? 1 : 0;
       flags.S = registers.A & 0x80 ? 1 : 0;
-      flags.CY = result < 0 ? 1 : 0;
+      flags.CY = result_90 < 0 ? 1 : 0;
       flags.P =
         (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
       break;
@@ -675,7 +676,7 @@ function execute(opcode) {
         (memory[memAddrDcr].toString(2).split("1").length - 1) % 2 === 0
           ? 1
           : 0;
-      flags.AC = (memory[memAddrDcr] & 0x0f) === 0x0f ? 1 : 0;
+      flags.AC = (memory[memAddrDcr] & 0x0f) === 0x00 ? 1 : 0; // Borrow from bit 3 to bit 4
       break;
 
     case 0xa8: // XRA B (Exclusive OR B with A)
@@ -867,6 +868,303 @@ function execute(opcode) {
 
       flags.CY = 0; // operation does not affect carry flag
       flags.AC = 1; // auxiliary carry is always set to 1 for ANI
+      break;
+
+    // Data Transfer Instructions
+    case 0x09: // DAD B (Add BC to HL)
+      let HL = (registers.H << 8) | registers.L;
+      let BC = (registers.B << 8) | registers.C;
+      let result_dadB = HL + BC;
+      flags.CY = result_dadB > 0xffff ? 1 : 0;
+      registers.H = (result_dadB >> 8) & 0xff;
+      registers.L = result_dadB & 0xff;
+      break;
+
+    case 0x19: // DAD D (Add DE to HL)
+      let DE = (registers.D << 8) | registers.E;
+      let result_dadD = HL + DE;
+      flags.CY = result_dadD > 0xffff ? 1 : 0;
+      registers.H = (result_dadD >> 8) & 0xff;
+      registers.L = result_dadD & 0xff;
+      break;
+
+    case 0x29: // DAD H (Add HL to HL)
+      let result_dadH = HL + HL;
+      flags.CY = result_dadH > 0xffff ? 1 : 0;
+      registers.H = (result_dadH >> 8) & 0xff;
+      registers.L = result_dadH & 0xff;
+      break;
+
+    case 0x39: // DAD SP (Add SP to HL)
+      let result_dadSP = HL + registers.SP;
+      flags.CY = result_dadSP > 0xffff ? 1 : 0;
+      registers.H = (result_dadSP >> 8) & 0xff;
+      registers.L = result_dadSP & 0xff;
+      break;
+
+    case 0x22: // SHLD addr (Store HL into memory address)
+      let lowByteSHLD = memory[registers.PC];
+      let highByteSHLD = memory[registers.PC + 1];
+      let addressSHLD = (highByteSHLD << 8) | lowByteSHLD;
+      memory[addressSHLD] = registers.L;
+      memory[addressSHLD + 1] = registers.H;
+      registers.PC += 2;
+      break;
+
+    case 0x2a: // LHLD addr (Load HL from memory address)
+      let lowByteLHLD = memory[registers.PC];
+      let highByteLHLD = memory[registers.PC + 1];
+      let addressLHLD = (highByteLHLD << 8) | lowByteLHLD;
+      registers.L = memory[addressLHLD];
+      registers.H = memory[addressLHLD + 1];
+      registers.PC += 2;
+      break;
+
+    case 0xeb: // XCHG (Exchange DE and HL)
+      let tempH = registers.H;
+      let tempL = registers.L;
+      registers.H = registers.D;
+      registers.L = registers.E;
+      registers.D = tempH;
+      registers.E = tempL;
+      break;
+
+    // Arithmetic Instructions
+    case 0x88: // ADC B (Add B and CY to A)
+      let result_adcB = registers.A + registers.B + flags.CY;
+      flags.CY = result_adcB > 0xff ? 1 : 0;
+      registers.A = result_adcB & 0xff;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0x89: // ADC C (Add C and CY to A)
+      let result_adcC = registers.A + registers.C + flags.CY;
+      flags.CY = result_adcC > 0xff ? 1 : 0;
+      registers.A = result_adcC & 0xff;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0x8a: // ADC D (Add D and CY to A)
+      let result_adcD = registers.A + registers.D + flags.CY;
+      flags.CY = result_adcD > 0xff ? 1 : 0;
+      registers.A = result_adcD & 0xff;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0x8b: // ADC E (Add E and CY to A)
+      let result_adcE = registers.A + registers.E + flags.CY;
+      flags.CY = result_adcE > 0xff ? 1 : 0;
+      registers.A = result_adcE & 0xff;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0x8c: // ADC H (Add H and CY to A)
+      let result_adcH = registers.A + registers.H + flags.CY;
+      flags.CY = result_adcH > 0xff ? 1 : 0;
+      registers.A = result_adcH & 0xff;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0x8d: // ADC L (Add L and CY to A)
+      let result_adcL = registers.A + registers.L + flags.CY;
+      flags.CY = result_adcL > 0xff ? 1 : 0;
+      registers.A = result_adcL & 0xff;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0x8e: // ADC M (Add value at memory[HL] and CY to A)
+      let addrHL = (registers.H << 8) | registers.L;
+      let result_adcM = registers.A + memory[addrHL] + flags.CY;
+      flags.CY = result_adcM > 0xff ? 1 : 0;
+      registers.A = result_adcM & 0xff;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0x97: // SUB A (Subtract A from A)
+      registers.A = 0;
+      flags.Z = 1;
+      flags.S = 0;
+      flags.CY = 0;
+      flags.P = 1; // Even parity
+      break;
+
+    case 0xd6: // SUI D8 (Subtract immediate from A)
+      let immediateSUI = memory[registers.PC++];
+      let result_SUI = registers.A - immediateSUI;
+      flags.CY = result_SUI < 0 ? 1 : 0;
+      registers.A = result_SUI & 0xff;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    case 0xde: // SBI D8 (Subtract immediate with borrow from A)
+      let immediateSBI = memory[registers.PC++];
+      let result_SBI = registers.A - immediateSBI - flags.CY;
+      flags.CY = result_SBI < 0 ? 1 : 0;
+      registers.A = result_SBI & 0xff;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      break;
+
+    // Logical Instructions
+    case 0xa1: // ANA C (Logical AND C with A)
+      registers.A = registers.A & registers.C;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.CY = 0;
+      break;
+
+    case 0xa2: // ANA D (Logical AND D with A)
+      registers.A = registers.A & registers.D;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.CY = 0;
+      break;
+
+    case 0xa3: // ANA E (Logical AND E with A)
+      registers.A = registers.A & registers.E;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.CY = 0;
+      break;
+
+    case 0xa4: // ANA H (Logical AND H with A)
+      registers.A = registers.A & registers.H;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.CY = 0;
+      break;
+
+    case 0xa5: // ANA L (Logical AND L with A)
+      registers.A = registers.A & registers.L;
+      flags.Z = registers.A === 0 ? 1 : 0;
+      flags.S = registers.A & 0x80 ? 1 : 0;
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+      flags.CY = 0;
+      break;
+
+    case 0xe9: // PCHL (Jump to address in HL)
+      registers.PC = (registers.H << 8) | registers.L;
+      break;
+
+    // Stack and Subroutine Instructions
+    case 0xc1: // POP B (Pop BC off the stack)
+      registers.C = memory[registers.SP++];
+      registers.B = memory[registers.SP++];
+      break;
+
+    case 0xd1: // POP D (Pop DE off the stack)
+      registers.E = memory[registers.SP++];
+      registers.D = memory[registers.SP++];
+      break;
+
+    case 0xe1: // POP H (Pop HL off the stack)
+      registers.L = memory[registers.SP++];
+      registers.H = memory[registers.SP++];
+      break;
+
+    // Rotate Instructions
+    case 0x07: // RLC (Rotate A left through carry)
+      let msb = (registers.A >> 7) & 1;
+      registers.A = ((registers.A << 1) | msb) & 0xff;
+      flags.CY = msb;
+      break;
+
+    case 0x1f: // RAR (Rotate A right through carry)
+      let cy_rar = flags.CY;
+      flags.CY = registers.A & 0x01;
+      registers.A = (cy_rar << 7) | (registers.A >> 1);
+      break;
+
+    case 0x17: // RAL (Rotate A left through carry)
+      let cy_ral = flags.CY;
+      flags.CY = (registers.A >> 7) & 1;
+      registers.A = ((registers.A << 1) | cy_ral) & 0xff;
+      break;
+
+    case 0x37: // STC (Set carry flag)
+      flags.CY = 1;
+      break;
+
+    case 0x3f: // CMC (Complement carry flag)
+      flags.CY = flags.CY === 1 ? 0 : 1;
+      break;
+
+    case 0x2f: // CMA (Complement accumulator)
+      registers.A = ~registers.A & 0xff;
+      break;
+
+    case 0x03: // INX B (Increment BC)
+      let bc = (registers.B << 8) | registers.C;
+      bc = (bc + 1) & 0xffff;
+      registers.B = (bc >> 8) & 0xff;
+      registers.C = bc & 0xff;
+      break;
+
+    case 0x13: // INX D (Increment DE)
+      let de = (registers.D << 8) | registers.E;
+      de = (de + 1) & 0xffff;
+      registers.D = (de >> 8) & 0xff;
+      registers.E = de & 0xff;
+      break;
+
+    case 0x1b: // DCX D (Decrement DE)
+      let de_d = (registers.D << 8) | registers.E;
+      de_d = (de_d - 1) & 0xffff;
+      registers.D = (de_d >> 8) & 0xff;
+      registers.E = de_d & 0xff;
+      break;
+
+    case 0x33: // INX SP (Increment Stack Pointer)
+      registers.SP = (registers.SP + 1) & 0xffff;
+      break;
+
+    case 0x3b: // DCX SP (Decrement Stack Pointer)
+      registers.SP = (registers.SP - 1) & 0xffff;
+      break;
+
+    case 0xdb: // IN D8 (Input from port)
+      let port = memory[registers.PC++];
+      registers.A = inputPorts[port]; // Read from inputPorts array (assumed structure)
+      break;
+
+    case 0xd3: // OUT D8 (Output to port)
+      let portOut = memory[registers.PC++];
+      outputPorts[portOut] = registers.A; // Write to outputPorts array (assumed structure)
       break;
 
     default:
