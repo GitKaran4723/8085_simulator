@@ -928,6 +928,20 @@ function execute(opcode) {
         (registers.A & 0x0f) - (registers.H & 0x0f) - carry_9c < 0 ? 1 : 0; // Auxiliary Carry flag
       break;
 
+    case 0xfe: // CPI D8 (Compare immediate with accumulator)
+      let immediateValueFE = memory[registers.PC]; // Fetch the immediate value from memory
+      registers.PC += 1; // Increment program counter to skip the immediate value
+
+      let result_FE = registers.A - immediateValueFE; // Perform comparison by subtraction
+
+      // Set flags based on the result of the comparison
+      flags.Z = (result_FE & 0xff) === 0 ? 1 : 0; // Set Zero flag if result is zero
+      flags.S = result_FE & 0x80 ? 1 : 0; // Set Sign flag if result is negative (MSB is 1)
+      flags.P = (result_FE.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0; // Set Parity flag for even parity
+      flags.CY = result_FE < 0 ? 1 : 0; // Set Carry flag if a borrow occurred (accumulator < immediate value)
+      flags.AC = (registers.A & 0x0f) - (immediateValueFE & 0x0f) < 0 ? 1 : 0; // Auxiliary Carry flag if there's a lower nibble borrow
+      break;
+
     case 0x29: // DAD H (Add HL to HL)
       let result_dadH = HL + HL;
       flags.CY = result_dadH > 0xffff ? 1 : 0;
