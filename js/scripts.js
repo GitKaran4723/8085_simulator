@@ -615,10 +615,10 @@ function execute(opcode) {
       break;
 
     case 0x23: // INX H (Increment the HL register pair by 1)
-      let hl = (registers.H << 8) | registers.L; // Combine H and L to form the HL register pair
-      hl = (hl + 1) & 0xffff; // Increment HL and ensure it stays within 16-bit limit
-      registers.H = (hl >> 8) & 0xff; // Update the higher byte (H)
-      registers.L = hl & 0xff; // Update the lower byte (L)
+      let hl_23 = (registers.H << 8) | registers.L; // Combine H and L to form the HL register pair
+      hl_23 = (hl_23 + 1) & 0xffff; // Increment HL and ensure it stays within 16-bit limit
+      registers.H = (hl_23 >> 8) & 0xff; // Update the higher byte (H)
+      registers.L = hl_23 & 0xff; // Update the lower byte (L)
       break;
 
     case 0x24: // INR H (Increment register H)
@@ -872,20 +872,24 @@ function execute(opcode) {
 
     // Data Transfer Instructions
     case 0x09: // DAD B (Add BC to HL)
-      let HL = (registers.H << 8) | registers.L;
+      let HL_09 = (registers.H << 8) | registers.L;
       let BC = (registers.B << 8) | registers.C;
-      let result_dadB = HL + BC;
+      let result_dadB = HL_09 + BC;
       flags.CY = result_dadB > 0xffff ? 1 : 0;
       registers.H = (result_dadB >> 8) & 0xff;
       registers.L = result_dadB & 0xff;
       break;
 
     case 0x19: // DAD D (Add DE to HL)
-      let DE = (registers.D << 8) | registers.E;
-      let result_dadD = HL + DE;
-      flags.CY = result_dadD > 0xffff ? 1 : 0;
-      registers.H = (result_dadD >> 8) & 0xff;
-      registers.L = result_dadD & 0xff;
+      let DE_19 = (registers.D << 8) | registers.E; // Combine D and E registers into 16-bit DE
+      let HL_19 = (registers.H << 8) | registers.L; // Combine H and L registers into 16-bit HL
+      let result_dadD = HL_19 + DE_19; // Add DE to HL
+
+      flags.CY = result_dadD > 0xffff ? 1 : 0; // Set Carry flag if result exceeds 16 bits
+
+      // Store the result back into H and L registers (16-bit result in HL)
+      registers.H = (result_dadD >> 8) & 0xff; // Upper 8 bits go into H
+      registers.L = result_dadD & 0xff; // Lower 8 bits go into L
       break;
 
     case 0x29: // DAD H (Add HL to HL)
@@ -1152,10 +1156,10 @@ function execute(opcode) {
       break;
 
     case 0x13: // INX D (Increment DE)
-      let de = (registers.D << 8) | registers.E;
-      de = (de + 1) & 0xffff;
-      registers.D = (de >> 8) & 0xff;
-      registers.E = de & 0xff;
+      let de_13 = (registers.D << 8) | registers.E;
+      de_13 = (de_13 + 1) & 0xffff;
+      registers.D = (de_13 >> 8) & 0xff;
+      registers.E = de_13 & 0xff;
       break;
 
     case 0x1b: // DCX D (Decrement DE)
