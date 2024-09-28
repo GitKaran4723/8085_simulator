@@ -1001,6 +1001,22 @@ function execute(opcode) {
         (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
       break;
 
+    case 0x96: // SUB M (Subtract memory [HL] from accumulator)
+      let memoryValue_96 = memory[(registers.H << 8) | registers.L]; // Fetch the value at memory[HL]
+      let result96 = registers.A - memoryValue_96; // Subtract the memory value from the accumulator
+
+      // Update accumulator (keep within 8-bit range)
+      registers.A = result96 & 0xff;
+
+      // Set flags
+      flags.Z = registers.A === 0 ? 1 : 0; // Set Zero flag if result is zero
+      flags.S = registers.A & 0x80 ? 1 : 0; // Set Sign flag if result is negative (MSB is 1)
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0; // Set Parity flag for even parity
+      flags.CY = result96 < 0 ? 1 : 0; // Set Carry flag if a borrow occurred
+      flags.AC = (registers.A & 0x0f) - (memoryValue_96 & 0x0f) < 0 ? 1 : 0; // Set Auxiliary Carry flag for lower nibble borrow
+      break;
+
     case 0x97: // SUB A (Subtract A from A)
       registers.A = 0;
       flags.Z = 1;
