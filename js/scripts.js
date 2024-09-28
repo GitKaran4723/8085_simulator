@@ -892,6 +892,42 @@ function execute(opcode) {
       registers.L = result_dadD & 0xff; // Lower 8 bits go into L
       break;
 
+    case 0x7b: // MOV A, E (Move the content of register E into accumulator A)
+      registers.A = registers.E; // Copy the value of E to A
+      break;
+
+    case 0x7a: // MOV A, D (Move the content of register D into accumulator A)
+      registers.A = registers.D; // Copy the value of D to A
+      break;
+
+    case 0x95: // SUB L (Subtract register L from accumulator A)
+      let result_95 = registers.A - registers.L; // Perform the subtraction
+      registers.A = result_95 & 0xff; // Store the lower 8 bits of the result in A
+
+      // Update flags
+      flags.Z = registers.A === 0 ? 1 : 0; // Zero flag
+      flags.S = registers.A & 0x80 ? 1 : 0; // Sign flag
+      flags.CY = result_95 < 0 ? 1 : 0; // Carry flag (borrow)
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0; // Parity flag
+      flags.AC = (registers.A & 0x0f) - (registers.L & 0x0f) < 0 ? 1 : 0; // Auxiliary Carry flag
+      break;
+
+    case 0x9c: // SBB H (Subtract register H and carry from accumulator A)
+      let carry_9c = flags.CY ? 1 : 0; // Get the carry flag value (1 if set, 0 if not)
+      let result_9C = registers.A - registers.H - carry_9c; // Perform the subtraction including the carry
+      registers.A = result_9C & 0xff; // Store the lower 8 bits of the result in A
+
+      // Update flags
+      flags.Z = registers.A === 0 ? 1 : 0; // Zero flag
+      flags.S = registers.A & 0x80 ? 1 : 0; // Sign flag
+      flags.CY = result_9C < 0 ? 1 : 0; // Carry flag (borrow)
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0; // Parity flag
+      flags.AC =
+        (registers.A & 0x0f) - (registers.H & 0x0f) - carry < 0 ? 1 : 0; // Auxiliary Carry flag
+      break;
+
     case 0x29: // DAD H (Add HL to HL)
       let result_dadH = HL + HL;
       flags.CY = result_dadH > 0xffff ? 1 : 0;
