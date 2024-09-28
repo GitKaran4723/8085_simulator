@@ -942,6 +942,34 @@ function execute(opcode) {
       flags.AC = (registers.A & 0x0f) - (immediateValueFE & 0x0f) < 0 ? 1 : 0; // Auxiliary Carry flag if there's a lower nibble borrow
       break;
 
+    case 0x27: // DAA (Decimal Adjust Accumulator)
+      let adjust = 0;
+
+      // Check if lower nibble is greater than 9 or if AC flag is set
+      if ((registers.A & 0x0f) > 9 || flags.AC === 1) {
+        adjust += 0x06; // Add 6 to adjust the lower nibble to valid BCD
+        flags.AC = 1; // Set auxiliary carry if there was an adjustment
+      }
+
+      // Check if upper nibble is greater than 9 or if CY flag is set
+      if (registers.A >> 4 > 9 || flags.CY === 1) {
+        adjust += 0x60; // Add 0x60 to adjust the upper nibble to valid BCD
+        flags.CY = 1; // Set carry if there was an adjustment
+      }
+
+      registers.A = (registers.A + adjust) & 0xff; // Adjust accumulator and ensure it stays within 8 bits
+
+      // Update flags based on the adjusted result
+      flags.Z = registers.A === 0 ? 1 : 0; // Zero flag
+      flags.S = registers.A & 0x80 ? 1 : 0; // Sign flag
+      flags.P =
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0; // Parity flag
+      break;
+
+    case 0x7d: // MOV A, L (Move the content of register L into accumulator A)
+      registers.A = registers.L; // Copy the value of L to A
+      break;
+
     case 0x29: // DAD H (Add HL to HL)
       let result_dadH = HL + HL;
       flags.CY = result_dadH > 0xffff ? 1 : 0;
