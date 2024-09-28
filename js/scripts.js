@@ -925,7 +925,7 @@ function execute(opcode) {
       flags.P =
         (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0; // Parity flag
       flags.AC =
-        (registers.A & 0x0f) - (registers.H & 0x0f) - carry < 0 ? 1 : 0; // Auxiliary Carry flag
+        (registers.A & 0x0f) - (registers.H & 0x0f) - carry_9c < 0 ? 1 : 0; // Auxiliary Carry flag
       break;
 
     case 0x29: // DAD H (Add HL to HL)
