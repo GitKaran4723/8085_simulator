@@ -242,13 +242,21 @@ function execute(opcode) {
 
     case 0x86: // ADD M (Add memory to register A)
       let addressM = (registers.H << 8) | registers.L;
-      let result_86 = registers.A + memory[addressM];
+      let valueM = memory[addressM];
+      let result_86 = registers.A + valueM;
+
+      // Update Accumulator
       registers.A = result_86 & 0xff;
+
+      // Update Flags
       flags.Z = registers.A === 0 ? 1 : 0;
       flags.S = registers.A & 0x80 ? 1 : 0;
       flags.CY = result_86 > 0xff ? 1 : 0;
       flags.P =
         (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
+
+      // Calculate Auxiliary Carry
+      flags.AC = (registers.A & 0x0f) + (valueM & 0x0f) > 0x0f ? 1 : 0;
       break;
 
     case 0x90: // SUB B
@@ -944,26 +952,31 @@ function execute(opcode) {
 
     case 0x27: // DAA (Decimal Adjust Accumulator)
       let adjust = 0;
+      let originalA = registers.A; // Store original accumulator for flag comparison
 
       // Check if lower nibble is greater than 9 or if AC flag is set
       if ((registers.A & 0x0f) > 9 || flags.AC === 1) {
         adjust += 0x06; // Add 6 to adjust the lower nibble to valid BCD
-        flags.AC = 1; // Set auxiliary carry if there was an adjustment
       }
 
       // Check if upper nibble is greater than 9 or if CY flag is set
       if (registers.A >> 4 > 9 || flags.CY === 1) {
         adjust += 0x60; // Add 0x60 to adjust the upper nibble to valid BCD
-        flags.CY = 1; // Set carry if there was an adjustment
+        flags.CY = 1; // Set carry flag if adjustment is made in upper nibble
       }
 
       registers.A = (registers.A + adjust) & 0xff; // Adjust accumulator and ensure it stays within 8 bits
 
       // Update flags based on the adjusted result
       flags.Z = registers.A === 0 ? 1 : 0; // Zero flag
-      flags.S = registers.A & 0x80 ? 1 : 0; // Sign flag
+      flags.S = registers.A & 0x80 ? 1 : 0; // Sign flag (set if result is negative)
+
+      // Update Auxiliary Carry flag if there was a carry from bit 3 during adjustment
+      flags.AC = (originalA & 0x0f) + (adjust & 0x0f) > 0x0f ? 1 : 0;
+
+      // Parity flag: Set if number of 1's in the result is even
       flags.P =
-        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0; // Parity flag
+        (registers.A.toString(2).split("1").length - 1) % 2 === 0 ? 1 : 0;
       break;
 
     case 0x7d: // MOV A, L (Move the content of register L into accumulator A)
