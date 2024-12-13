@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Colleges Map with Clusters and Intake</title>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDChlKsByLiOCND95trsDfIKOWv3YEFKFM&libraries=places"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/markerclustererplus/2.1.0/markerclusterer.min.js"></script>
+    <script>
+        const colleges = [
+            { name: "Acharya Institute of Management & Sciences (AIMS Institute of Higher Education)", address: "Ist Stage, Peenya Industrial Estate, Bengaluru-58", intake: 60, cluster: "A" },
+            { name: "Acharyas Bangalore B School", address: "No.3, Lingadeeranahalli, Bengaluru -91", intake: 120, cluster: "E" },
+            { name: "Adharsh Vidhya Kendra College", address: "27th Cross, Banashankari 2nd Stage, Bengaluru-70", intake: 40, cluster: "E" },
+            { name: "Administrative Management College", address: "18th Km. Bannerghatta Road, Bengaluru-83", intake: 120, cluster: "G" },
+            { name: "Akshara First Grade College", address: "Lakshmi Theatre Road, Near MBT Layout, Anekal, Bengaluru", intake: 60, cluster: "I" },
+            { name: "Anupama College of Management and Science", address: "WOC, 2nd Stage, Mahalakshmi Puram, Bengaluru-86", intake: 30, cluster: "C" },
+            { name: "ASC Degree College", address: "#3/10, Old No.A-3, 1st Main Road, 6th Block, Rajajinagar Industrial Area, Bengaluru-560 044", intake: 60, cluster: "C" },
+            { name: "B.T.L College", address: "No256, Bommasandra Industrial Area, Hosur Road, Bengaluru-99", intake: 60, cluster: "F" },
+            { name: "Bangalore Institute of Management Studies", address: "Opp.RVCE, Mysore Road, Bengaluru -60", intake: 60, cluster: "D" },
+            { name: "Benedictine Academy", address: "Anchepalya, Kumbalagudu PO, Bengaluru-560 074", intake: 60, cluster: "A" },
+            { name: "Bethel International College of Commerce", address: "Bethael Medical Mission Campus, Bethel Street, Near Laggere Bridge, Preethinagar, Bengaluru-560 058", intake: 60, cluster: "B" },
+            { name: "BGS Institute of Management", address: "CA 6- 7, No.478, 2nd Main, 2nd Stage, West of Chord Road, Mahalakshmipuram, Bengaluru-560 086", intake: 60, cluster: "C" },
+            { name: "Christ Academy Institute for Advanced Studies", address: "Christ Nagar, Hullahalli, Begur-Koppa road, Sakkalwara Post, Bengaluru-560 083", intake: 120, cluster: "G" },
+            { name: "City College", address: "27/2, 33rd Cross, 2nd Main Road, 7th block, Jayanagar, Bengaluru-82", intake: 120, cluster: "E" },
+            { name: "CV Gurukula College", address: "No.45, Govindrajanagar Ward, Magadi Main Road, Agrahara Dsarahlli, Bengaluru-40", intake: 60, cluster: "C" },
+            { name: "Darshan College", address: "Mysore Road, Opp. R.V. Engineering College, Bengaluru-560 059", intake: 40, cluster: "D" },
+            { name: "Dayananda Sagar Business Academy", address: "Udayapura, BM Kaval, Kanakapura Road, Near Art of Living, Bengaluru", intake: 60, cluster: "J" },
+            { name: "Dayananda Sagar College of Arts, Science & Commerce College", address: "Shavige Malleswara Hills, Kumara Swamy Layout, Bengaluru-78", intake: 120, cluster: "E" },
+            { name: "Dhanwantari Academy for Management Studies", address: "39/1, Vinayakanagar, Near Chikkabanavara Railway Station, Hesargatta Road, Chikkabanavara, Bengaluru-560 090", intake: 60, cluster: "A" },
+            { name: "Don Bosco Institute of Management Studies & Computer Applications", address: "Sy.No.8/7, Kumbalagodu, Mysore Road, Bengaluru-560 074", intake: 60, cluster: "D" },
+            { name: "Dr. S. Gopalaraju Govt. First Grade College College", address: "Anekal-562106", intake: 40, cluster: "G" },
+            { name: "East West Business School", address: "Sy.No.187, Kumbalagodu Village, Kengeri Hobli, Bengaluru Sourth, Bengaluru-560 074", intake: 60, cluster: "D" },
+            { name: "East West College of Management", address: "No.63, BEL Layout, Viswanaeedum Post, Magadi Mn. Road, Bengaluru -91", intake: 120, cluster: "B" },
+            { name: "Full-in-Faws College", address: "221/1,Akshayanagar, Yellanahally, Begoor hobli, Bengaluru-68.", intake: 30, cluster: "F" },
+            { name: "G.R. College of Arts, Science & Commerce", address: "#77/2B, BM Kaval Village, Off Agara Main, Tataguni Post, Bengaluru South", intake: 60, cluster: "D" },
+            { name: "G.T. Institute Management Studies & Research", address: "10/15, Magadi Road, Sunkadakatte, Vishwaneedum Post, Bengaluru-560 091.", intake: 60, cluster: "B" },
+            { name: "Global Institute of Management Sciences", address: "No.6, Devadiga Saudha, 3rd Cross, Ideal Township, Rajarajeshwari Nagar, Bengaluru-98", intake: 60, cluster: "D" },
+            { name: "Good Shepherd Institute of Management Studies", address: "Sy.No.215, 216, JSS Circle, Omkar Hills, Srinivasapura, Bengaluru-560 060", intake: 30, cluster: "D" },
+            { name: "Government First Grade College, Kalashtrinagar", address: "Kalashtrinagar, T Dasarahalli, Bengaluru-560 057", intake: 40, cluster: "A" },
+            { name: "Government First Grade College, Vijayanagar", address: "No.5, 3rd Main, 7th Cross, RPC Layout, Vijayanagar, Bengaluru-560 040", intake: 150, cluster: "C" },
+            { name: "H.M.R. Degree College", address: "HMR Layout, Jnanajyothinagara, 80FT Main Road, Bangalore-56056", intake: 30, cluster: "D" },
+            { name: "Harsha Institute of Management Studies", address: "129/47/1 to 7, Vardanayakanahalli Village, Thyamagondlu Hobli, Nelamangala Taluk, Bangalore Rural District, 562123", intake: 60, cluster: "A" },
+            { name: "IIFA Lancaster Degree College", address: "No.5, 80ft Ring Road, Suvarnajyothi Layout, Nagadevahanalli, Jnanabharathi post, Bengaluru-560 056", intake: 40, cluster: "B" },
+            { name: "ISBR College", address: "No.16, Phase-1, Electronic City, Bengaluru-560 100", intake: 60, cluster: "FFIM Colleg", cluster: "F" },
+            { name: "IZEE College of Management & Information Science", address: "No.39, Konappana Agrahara, Electronic City Phase-2, Begur Hobli, Bengaluru-560 100", intake: 120, cluster: "F" },
+            { name: "Jai Hind Degree College", address: "No.39-28 1st B Main Road, Vijayanagar Pipeline Road, Bengaluru-560 040", intake: 30, cluster: "C" },
+            { name: "Jame-Ul-Uloom College of Information Science", address: "Shikshanagar, 26th Mile, Mysore Road, Near Wonderla, Bidadi Hobli-562 109, Ramanagar Dist", intake: 30, cluster: "J" },
+            { name: "Jindal College for Women", address: "Jindal Nagar, Tumkur Road, Bengaluru-560 073", intake: 60, cluster: "I" },
+            { name: "Jnana Vikas Institute of Management Studies & Commerce", address: "Near Tyota Circle, BM Road, Bidadi-562 109, Ramanagaram Taluk & Dist.", intake: 60, cluster: "J" },
+            { name: "Kaveri First Grade College", address: "Muttukatte Dinne Cross, Kempu-dommasandra Road, Samandur Post, Anekal Taluk, Bengaluru-562106", intake: 40, cluster: "G" },
+            { name: "KK Degree College", address: "No.10, KK Arcade, Channasandra, RR Nagar, Bengaluru-560 098", intake: 60, cluster: "D" },
+            { name: "KLE Society's Degree College", address: "2nd Stage, 3rd Block, Next to BDA Complex, Nagarabhavi, Bengaluru-560 072", intake: 180, cluster: "B" },
+            { name: "Kuvempu First Grade College", address: "Mallasandra, T Dasarahalli, Bengaluru-57", intake: 60, cluster: "A" },
+            { name: "M.H. Institute of Management Sciences", address: "BM Road, Vivekanandanagar, Ramanagaram-571 511", intake: 60, cluster: "J" },
+            { name: "M.N. Degree College", address: "Kammagondanahalli, Bengaluru-15", intake: 55, cluster: "A" },
+            { name: "NBP Degree College", address: "No.78, Opp. Veeresh Theatre, Magadi Main Road, Bengaluru-560 079", intake: 40, cluster: "C" },
+            { name: "NRI Institute", address: "No.6, Papareddypalya, Nagarabhavi 2nd Stage, Bengaluru-560 072", intake: 60, cluster: "B" },
+            { name: "Om Sai Degree College", address: "Janapriya Complex, Magadi Main Road, Sunkadakatte, Bengaluru-560 091", intake: 60, cluster: "B" },
+            { name: "Padma College of Management & Science", address: "No.11/3, Sunkadakatte Village, Srigandhadakaval, Rajiv Gandhinagara, Magadi Main Road, Bengaluru-560 091", intake: 40, cluster: "B" },
+            { name: "Padmashree Institute of Management & Science", address: "Kommagatta Village, Kengeri Hobli, Bengaluru-60", intake: 50, cluster: "D" },
+            { name: "Pinnacle Institute of Management & Science", address: "#19/2, Bhavani Mansion, Mallathalli, Nagarabhavi 2nd Stage, Deepa Complex, Opp. AIT Bengaluru-72", intake: 120, cluster: "B" },
+            { name: "Pragathi First Grade College", address: "#57, Opp. Janapriya Apartments, Pipeline Road, Bengaluru-560 090", intake: 40, cluster: "I" },
+            { name: "Rajajinagar Parents Association First Grade College", address: "CA-2, 5th Block, Rajajinagar, Bengaluru-10", intake: 50, cluster: "C" },
+            { name: "Ramanashree Academy of Management", address: "No.14, 10th Cross, 18th Main, MC Layout, Vijayanagar, Bengaluru-40", intake: 40, cluster: "C" },
+            { name: "RNS First Grade College", address: "Dr. Vishnuvardhan Road, Channasandra, Rajarajeshwarinagar Post, Bengaluru-560 098", intake: 160, cluster: "D" },
+            { name: "Royal College of Arts, Science & Management", address: "Sy.No.1/2, Mallapura Village, Kasaba Hobli, Nelamangala", intake: 80, cluster: "A" },
+            { name: "RR Institute of Management Studies", address: "#67, Chikkabanavara, Bengaluru-560 090", intake: 120, cluster: "A" },
+            { name: "Rural College", address: "Kanakapura-561117", intake: 60, cluster: "J" },
+            { name: "S.V.R. College of Commerce & Management Studies", address: "No.20/1, Samasandra Palya, HSR Sector-2, Bengaluru-34", intake: 60, cluster: "E" },
+            { name: "SEMA College", address: "Sy. No.74/2, Begihalli Village, Jigani Hobli, Anekal Taluk, Bangalore District 560105", intake: 40, cluster: "G" },
+            { name: "Seshadripuram Academy of Business Studies", address: "No.18, Kommagatta Road, Kengeri New Town, Bengaluru-60", intake: 90, cluster: "D" },
+            { name: "Shantiniketan College of Science & Management Studies", address: "BM Road, Vivekanandanagar, Ramanagaram Dist.-571 511", intake: 120, cluster: "J" },
+            { name: "Shree Daksha Academy", address: "No.596, Andrahalli Main Road, Opp. D Group Layout Arch, Bengaluru-560091", intake: 60, cluster: "B" },
+            { name: "Siddaganga College of Management & Science", address: "No.33, Sooraj Towers, Service Road, Near Laggere Last Bus Stop, Bengaluru-560 058", intake: 60, cluster: "B" },
+            { name: "SJB College of Management Studies", address: "#67, BGS Health & Education City, Kengeri, Bengaluru-560 060", intake: 30, cluster: "D" },
+            { name: "Smt. Nalini Raghunath Rao Degree College", address: "Jigani, Anekal Taluk, Bengaluru District", intake: 60, cluster: "G" },
+            { name: "Soundarya Institute of Management & Science", address: "Soundarya Nagara, Seededahalli, Nagasandra Post, Bengaluru-73", intake: 100, cluster: "A" },
+            { name: "Spurthy College of Science & Management Studies", address: "#328, Marasur Gate, Anekal Main Road, Marasur Post, Anekal Taluk, Bengaluru-562106", intake: 90, cluster: "F" },
+            { name: "Sri Aurbindo College", address: "No.6/C, 5th Main, IInd Stage, Dr. Da Ra Bendre Road, Mahalakshmipuram, Bengaluru-86", intake: 50, cluster: "I" },
+            { name: "Sri Basaveshwara Women First Grade College", address: "Nelamangala Town, Bengaluru Rural Dist.-562 123", intake: 60, cluster: "A" },
+            { name: "Sri Kuvempu Maha Vidhyalaya First Grade College", address: "Channapatna-571501", intake: 60, cluster: "J" },
+            { name: "Sri Lakshmi College of Management & Science", address: "#4 & 5 Sri Gandada Kaval, Magadi Main Road, Viswaneedam Post, Sunkadakatte, Bengaluru-560 091", intake: 60, cluster: "B" },
+            { name: "Sri Vani Vidya Kendra Degree College", address: "Hanumavana, Sy.No.143, Between 16th & 17th Km, Macholhalli Village, Nelamangala Taluk, Magadi Road, Bengaluru-560 0091", intake: 60, cluster: "C" },
+            { name: "St. Claret College", address: "MES Road, 5th Cross, 1st Main, Sharadambangar, Bengaluru-13", intake: 90, cluster: "I" },
+            { name: "St. Francis D Sales College", address: "Mermier Nagar, Huskur Gate, Electronic City Post, Bengaluru-100", intake: 80, cluster: "F" },
+            { name: "St. Paul's College", address: "#E-1, Nelagadaranahally, Nagasandra PO, Bengaluru-560 0073", intake: 40, cluster: "B" },
+            { name: "Surana College, Industrial Suburbs", address: "No.167, Industrial Suburbs, 5th Main, 2nd Stage, Peenya, Bengaluru-560 022", intake: 60, cluster: "B" },
+            { name: "Surana Evening College", address: "CA-17, Tumkur Mysore Ring Road, Kengeri Satellite Town, Bengaluru-560 060", intake: 60, cluster: "D" },
+            { name: "T. John College", address: "No.80/1, Gottigere Post, Bannergatta Road, Bengaluru-83", intake: 120, cluster: "E" },
+            { name: "The Dalai Lama Institute for Higher Education", address: "Sheshagirihalli, Hejjala Post, Mysore Road, Bidadi Hobli, Ramanagar District-562 109", intake: 60, cluster: "A" },
+            { name: "The Kingdom College", address: "No.1008, Ideal Homes Township, Jayanna Circle, Rajarajeswarinagar, Bengaluru-560 098", intake: 40, cluster: "D" },
+            { name: "The Oxford College of Science", address: "No.32, 19th Main Road, 17th B Cross, Sector-4, HSR Layout, Bengaluru-560 102", intake: 240, cluster: "E" },
+            { name: "Triveni Institute of Commerce & Management", address: "No.28/29, Hesarugatta Road, T. Dasarahalli, Mallasandra, Bengaluru-560 057", intake: 60, cluster: "A" },
+            { name: "Vagdevi Vilas College", address: "S. No.26/1 & 26/2, Halavahalli, Thippasandra Village, Sarjapur Hobli, Anekal Taluk, Bengaluru-560 087", intake: 60, cluster: "F" },
+            { name: "Vasavi Jnanapeeta First Grade College", address: "No.10, 2nd Main, Vijayanagar, Bengaluru-40", intake: 90, cluster: "C" },
+            { name: "VEIT Degree College", address: "South End Circle, 3rd Block, Jayanagar, Bengaluru-560 011", intake: 60, cluster: "E" },
+            { name: "Vishwa Chethana Degree College", address: "No.36, Rajarajeshwari Layout, I Main, 4th Cross, Sammandour, Anekal Kasaba Village, Anekal", intake: 100, cluster: "G" },
+            { name: "Vishwa Venkateshwara Degree College", address: "Tirumala Garden, Kodipalya, Kengeri, Bengaluru-560 060", intake: 60, cluster: "D" },
+            { name: "Jyothy Evening College", address: "40/5, Thathaguni, Off Kanakapura Road, Bengaluru-560 082", intake: 40, cluster: "E" },
+            { name: "Vishwa Chethana College", address: "No.52-1, Kurubarahatti, Muthagatti Road, Anekal Taluk, Bengaluru-562 106", intake: 60, cluster: "C" },
+            { name: "Vidya Soudha Academy of Management Sciences-VSAMS", address: "No.9-1, 1st Main, Peenya 1st Stage, Near Basaveshwara Bus Station, Bengaluru-560 068", intake: 60, cluster: "A" },
+            { name: "The National College", address: "7th Block, Jayanagar, Bengaluru-560 070", intake: 240, cluster: "E" },
+            { name: "IFIM College", address: "#8P & 9P, KIADB Industrial Area, Electronic City, I Phase, Bengaluru-560 100", intake: 60, cluster: "F" },
+            { name: "Surana College, South End Circle", address: "No.16, South End Circle, Bengaluru-04", intake: 120, cluster: "C" },
+            { name: "Bangalore University main Campus", address: "BCA Department, Jyanbharati campus, Bangalore University, Bangalore", intake: 120, cluster: "D" }
+        ];
+
+        const clusterColors = {
+            A: "crimson",       // A bold, eye-catching red
+            B: "royalblue",     // A rich, vibrant blue
+            C: "forestgreen",   // A strong, natural green
+            D: "chartreuse",    // A bright lime-green
+            E: "mediumpurple",  // A pleasing, soft purple
+            F: "sienna",        // A warm brown
+            G: "deepskyblue",   // A striking cyan
+            H: "hotpink",       // A vivid pink
+            I: "dimgray",       // A neutral, readable gray
+            J: "gold",          // A luminous yellow
+            default: "black"    // Neutral black
+        }
+
+        function initMap() {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 12.9716, lng: 77.5946 }, // Bengaluru coordinates
+                zoom: 10
+            });
+
+            const geocoder = new google.maps.Geocoder();
+            const markers = [];
+
+            colleges.forEach(college => {
+                geocoder.geocode({ address: college.address }, (results, status) => {
+                    if (status === "OK") {
+                        const marker = new google.maps.Marker({
+                            map: map,
+                            position: results[0].geometry.location,
+                            title: college.name,
+                            icon: {
+                                path: google.maps.SymbolPath.CIRCLE,
+                                fillColor: clusterColors[college.cluster] || clusterColors.default, // Use default if no cluster
+                                fillOpacity: 1,
+                                strokeWeight: 1,
+                                scale: 7
+                            }
+                        });
+
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: `<strong>${college.name}</strong>
+                            <br>Intake: ${college.intake}
+                            <br>Group: ${college.cluster || "None"}`
+                        });
+
+                        marker.addListener("click", () => {
+                            infoWindow.open(map, marker);
+                        });
+
+                        markers.push(marker);
+                    } else {
+                        console.error(`Geocode failed for ${college.name}: ${status}`);
+                    }
+                });
+            });
+
+            // Create the MarkerClusterer
+            new MarkerClusterer(map, markers, {
+                imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
+            });
+        }
+    </script>
+</head>
+
+<body onload="initMap()">
+    <h1>Colleges Map with Clusters and Intake</h1>
+    <div id="map" style="height: 700px; width: 100%;"></div>
+</body>
+
+</html>
