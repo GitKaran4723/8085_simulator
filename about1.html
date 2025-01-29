@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        select {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        #studentDetails {
+            margin-top: 20px;
+            text-align: left;
+            width: 100%;
+            max-width: 500px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #studentPhoto {
+            display: block;
+            margin: 10px auto;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #loading {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media screen and (max-width: 600px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            select,
+            #studentDetails {
+                max-width: 100%;
+            }
+        }
+    </style>
+    <script>
+        const scriptURL = "https://script.google.com/macros/s/AKfycbyt4MVeciUT-bNnQ_r491Z3u5J3IYMN-RVITEq24NNzxZpLGXuE8B_9zJ7ncHKF7VqOOw/exec"; // Replace with your Apps Script Web App URL
+
+        async function fetchStudentNames() {
+            const loading = document.getElementById("loading");
+            loading.style.display = "block";
+
+            try {
+                const response = await fetch(`${scriptURL}?type=names`);
+                const students = await response.json();
+                students.sort((a, b) => a.name.localeCompare(b.name));
+
+                const dropdown = document.getElementById("studentDropdown");
+                students.forEach(student => {
+                    const option = document.createElement("option");
+                    option.value = student.name;
+                    option.textContent = student.name;
+                    dropdown.appendChild(option);
+                });
+            } catch (error) {
+                alert("Failed to fetch student names.");
+            } finally {
+                loading.style.display = "none";
+            }
+        }
+
+        async function fetchStudentDetails() {
+            const selectedName = document.getElementById("studentDropdown").value;
+            const loading = document.getElementById("loading");
+            loading.style.display = "block";
+
+            try {
+                const response = await fetch(`${scriptURL}?type=details&name=${encodeURIComponent(selectedName)}`);
+                const details = await response.json();
+                const detailsDiv = document.getElementById("studentDetails");
+                detailsDiv.innerHTML = "";
+
+                const img = document.createElement("img");
+                img.id = "studentPhoto";
+
+                
+                img.src = details.photo;
+                console.log(details.photo1)
+                detailsDiv.appendChild(img);
+
+                for (const [key, value] of Object.entries(details)) {
+                    if (key !== "photo") {
+                        const p = document.createElement("p");
+                        p.textContent = `${key}: ${value}`;
+                        detailsDiv.appendChild(p);
+                    }
+                }
+            } catch (error) {
+                alert("Failed to fetch student details.");
+            } finally {
+                loading.style.display = "none";
+            }
+        }
+
+        window.onload = fetchStudentNames;
+    </script>
+</head>
+
+<body>
+    <h1>Student Details</h1>
+    <label for="studentDropdown">Select Student:</label>
+    <select id="studentDropdown" onchange="fetchStudentDetails()">
+        <option value="" disabled selected>Select a student</option>
+    </select>
+
+    <div id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="studentDetails">
+        <h2>Details:</h2>
+    </div>
+</body>
+
+</html>
